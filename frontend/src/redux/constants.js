@@ -1,4 +1,9 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL || "";
+const rawBaseUrl = import.meta.env.VITE_BASE_URL || "";
+export const BASE_URL =
+  rawBaseUrl && !rawBaseUrl.startsWith("http")
+    ? `https://${rawBaseUrl}`
+    : rawBaseUrl;
+
 export const USERS_URL = "/api/v1/users";
 export const GENRE_URL = "/api/v1/genre";
 export const MOVIE_URL = "/api/v1/movies";

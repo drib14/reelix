@@ -1,6 +1,9 @@
 const getApiUrl = () => {
   if (import.meta.env.VITE_AI_API_URL) return import.meta.env.VITE_AI_API_URL;
-  if (import.meta.env.VITE_BASE_URL) return `${import.meta.env.VITE_BASE_URL.replace(/\/$/, "")}/api/v1/ai/chat`;
+  const baseUrl = import.meta.env.VITE_BASE_URL || "";
+  const normalizedBase =
+    baseUrl && !baseUrl.startsWith("http") ? `https://${baseUrl}` : baseUrl;
+  if (normalizedBase) return `${normalizedBase.replace(/\/$/, "")}/api/v1/ai/chat`;
   return "http://localhost:3000/api/v1/ai/chat";
 };
 

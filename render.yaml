@@ -9,11 +9,11 @@ services:
   # ---------------------------------------------------
   - type: web
     name: reelix-api
-    env: node
+    runtime: node
     plan: free
     region: singapore
     buildCommand: npm install
-    startCommand: npm run start
+    startCommand: node backend/index.js
     healthCheckPath: /api/v1/movies
     envVars:
       - key: PORT
@@ -35,20 +35,16 @@ services:
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: CLIENT_URL
-        fromService:
-          type: web
-          name: reelix
-          property: url
+        sync: false
 
   # ---------------------------------------------------
   # 2. Frontend Static Site (Vite React Web App)
-  # Name: reelix (fallback: reelix-web if claimed)
+  # Service Name: reelix (if claimed, rename to reelix-web)
   # ---------------------------------------------------
   - type: web
     name: reelix
-    env: static
+    runtime: static
     plan: free
-    region: singapore
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     routes:
@@ -60,10 +56,4 @@ services:
         fromService:
           type: web
           name: reelix-api
-          property: url
-      - key: VITE_AI_API_URL
-        fromService:
-          type: web
-          name: reelix-api
-          property: url
-          path: /api/v1/ai/chat
+          property: host
