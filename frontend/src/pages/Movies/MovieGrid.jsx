@@ -3,39 +3,37 @@ import MovieCard from "./MovieCard";
 const MovieGrid = ({ movies, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-24">
-        <h2 className="text-white text-2xl animate-pulse">
-          Loading Movies...
-        </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 py-8">
+        {[...Array(12)].map((_, i) => (
+          <div
+            key={i}
+            className="aspect-[2/3] rounded-2xl bg-zinc-900 animate-pulse border border-zinc-800"
+          ></div>
+        ))}
       </div>
     );
   }
 
   if (!movies || movies.length === 0) {
     return (
-      <div className="flex justify-center items-center py-24">
-        <h2 className="text-gray-400 text-2xl">
-          No movies found.
-        </h2>
+      <div className="flex flex-col justify-center items-center py-20 text-center">
+        <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-3xl mb-4">
+          🎬
+        </div>
+        <h3 className="text-white text-xl font-bold">No movies found</h3>
+        <p className="text-gray-400 text-sm mt-1">
+          Try broadening your search keywords or clearing filters.
+        </p>
       </div>
     );
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12">
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-
-        {movies.map((movie) => (
-          <MovieCard
-            key={movie._id}
-            movie={movie}
-          />
-        ))}
-
-      </div>
-
-    </section>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+      {movies.map((movie) => (
+        <MovieCard key={movie._id || movie.id} movie={movie} />
+      ))}
+    </div>
   );
 };
 

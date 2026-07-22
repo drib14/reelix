@@ -80,6 +80,8 @@ const getSpecificMovie = async (req, res) => {
         ? `https://www.youtube.com/watch?v=${trailer.key}`
         : "",
 
+      videoUrl: movie.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+
       cast:
         movie.credits?.cast?.slice(0, 10).map((actor) => ({
           id: actor.id,

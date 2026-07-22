@@ -2,60 +2,74 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    <section
-      className="relative h-[88vh] bg-cover bg-center"
+    <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center justify-center bg-cover bg-center pt-24 pb-16 overflow-hidden"
       style={{
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop')",
+          "url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1920&auto=format&fit=crop')",
       }}
     >
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/75"></div>
+      {/* Dark Gradient Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0e] via-[#0d0d0e]/80 to-black/70"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-black/90"></div>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-6 pt-16">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+        
+        {/* Pill Badge */}
+        <div className="inline-flex items-center gap-2 bg-red-950/60 border border-red-500/30 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 text-xs sm:text-sm text-red-400 font-semibold tracking-wide uppercase shadow-lg shadow-red-950/50">
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span>Unlimited Streaming & AI Recommendations</span>
+        </div>
 
-        <h1 className="text-white text-5xl md:text-7xl font-black leading-tight max-w-5xl">
-          Unlimited Movies,
-          <br />
-          TV Shows and More
+        {/* Title */}
+        <h1 className="text-white text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none mb-6">
+          Stream Beyond <br className="hidden sm:inline" />
+          <span className="text-gradient-red">Imagination</span>
         </h1>
 
-        <p className="text-white text-2xl mt-6 font-medium">
-          Watch anywhere. Discover anytime.
-        </p>
-
-        <p className="text-gray-300 mt-6 text-lg max-w-2xl">
-          Explore thousands of movies powered by TMDB. Search your favourites,
-          discover trending titles, and build your own personal watchlist.
+        {/* Tagline */}
+        <p className="text-gray-200 text-lg sm:text-2xl font-medium max-w-2xl leading-relaxed mb-8">
+          Explore thousands of blockbuster movies, hidden gems, and AI-curated picks instantly.
         </p>
 
         {/* Action Buttons */}
-
-        <div className="flex flex-col md:flex-row gap-5 mt-10">
-
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
           <Link
             to="/movies"
-            className="px-10 py-4 bg-red-600 hover:bg-red-700 transition rounded-lg text-white text-xl font-semibold shadow-lg"
+            className="w-full sm:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 transition duration-300 rounded-xl text-white text-base sm:text-lg font-bold shadow-xl shadow-red-600/30 hover:shadow-red-600/50 flex items-center justify-center gap-2 group"
           >
-            🎬 Browse Movies
+            <span>🎬 Explore Movies</span>
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
           </Link>
 
           <Link
             to="/watchlist"
-            className="px-10 py-4 bg-gray-800 hover:bg-gray-700 transition rounded-lg text-white text-xl font-semibold border border-gray-600"
+            className="w-full sm:w-auto px-8 py-4 bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-700/80 transition duration-300 rounded-xl text-white text-base sm:text-lg font-bold backdrop-blur-sm flex items-center justify-center gap-2"
           >
-            ❤️ My Watchlist
+            <span>❤️ My Watchlist</span>
           </Link>
+        </div>
 
+        {/* Stats / Features Row */}
+        <div className="grid grid-cols-3 gap-4 sm:gap-12 mt-12 sm:mt-16 pt-8 border-t border-zinc-800/80 max-w-2xl w-full text-center">
+          <div>
+            <p className="text-xl sm:text-3xl font-extrabold text-white">10K+</p>
+            <p className="text-xs sm:text-sm text-gray-400 font-medium">Movies & Shows</p>
+          </div>
+          <div>
+            <p className="text-xl sm:text-3xl font-extrabold text-white">4K</p>
+            <p className="text-xs sm:text-sm text-gray-400 font-medium">Ultra HD Quality</p>
+          </div>
+          <div>
+            <p className="text-xl sm:text-3xl font-extrabold text-white">AI Smart</p>
+            <p className="text-xs sm:text-sm text-gray-400 font-medium">Movie Assistant</p>
+          </div>
         </div>
 
       </div>
 
-      {/* Bottom Gradient */}
-
-      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent"></div>
-
+      {/* Bottom Vignette Fade */}
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0d0d0e] to-transparent pointer-events-none"></div>
     </section>
   );
 };

@@ -1,106 +1,101 @@
+import { Link } from "react-router-dom";
 import Logo from "../Logo";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#0b0b0b] border-t border-gray-800 mt-20">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 py-14">
-
-        {/* Top */}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-
-          <div>
-            <Logo size="lg" className="mb-4" />
-
-            <p className="text-gray-400 mt-4 leading-7">
-              A Netflix-inspired movie streaming platform built using
-              React, Redux Toolkit, Node.js, Express, MongoDB and TMDB API.
+    <footer className="bg-[#09090b] border-t border-zinc-800/80 mt-20 pt-16 pb-12 text-sm text-gray-400">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-zinc-800/80">
+          
+          {/* Col 1: Brand Info */}
+          <div className="space-y-4">
+            <Logo size="md" />
+            <p className="text-gray-400 text-sm leading-relaxed mt-4">
+              Reelix is a next-generation movie streaming and recommendation platform. Powered by TMDB, React, Redux, Node.js & AI.
             </p>
-          </div>
-
-          <div>
-            <h3 className="text-white text-xl font-semibold mb-4">
-              Browse
-            </h3>
-
-            <div className="flex flex-col gap-3 text-gray-400">
-
-              <Link to="/" className="hover:text-red-500 transition">
-                Home
-              </Link>
-
-              <Link to="/" className="hover:text-red-500 transition">
-                Trending
-              </Link>
-
-              <Link to="/" className="hover:text-red-500 transition">
-                Popular
-              </Link>
-
-              <Link to="/" className="hover:text-red-500 transition">
-                Top Rated
-              </Link>
-
-              <Link to="/" className="hover:text-red-500 transition">
-                Upcoming
-              </Link>
-
+            <div className="flex items-center gap-3 pt-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-950/60 text-red-400 border border-red-500/30">
+                v2.0 • Ultra HD
+              </span>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-white text-xl font-semibold mb-4">
-              Account
-            </h3>
+          {/* Col 2: Navigation */}
+          <div className="space-y-4">
+            <h4 className="text-white font-bold text-base tracking-wider uppercase">
+              Explore
+            </h4>
+            <ul className="space-y-2.5">
+              <li>
+                <Link to="/" className="hover:text-red-500 transition">
+                  Home Overview
+                </Link>
+              </li>
+              <li>
+                <Link to="/movies" className="hover:text-red-500 transition">
+                  All Movies Catalog
+                </Link>
+              </li>
+              <li>
+                <Link to="/watchlist" className="hover:text-red-500 transition">
+                  My Watchlist
+                </Link>
+              </li>
+            </ul>
+          </div>
 
-            <div className="flex flex-col gap-3 text-gray-400">
+          {/* Col 3: Account */}
+          <div className="space-y-4">
+            <h4 className="text-white font-bold text-base tracking-wider uppercase">
+              Account & Legal
+            </h4>
+            <ul className="space-y-2.5">
+              <li>
+                <Link to="/login" className="hover:text-red-500 transition">
+                  Sign In
+                </Link>
+              </li>
+              <li>
+                <Link to="/register" className="hover:text-red-500 transition">
+                  Create Account
+                </Link>
+              </li>
+              <li>
+                <Link to="/profile" className="hover:text-red-500 transition">
+                  User Profile
+                </Link>
+              </li>
+            </ul>
+          </div>
 
-              <Link
-                to="/watchlist"
-                className="hover:text-red-500 transition"
-              >
-                Watchlist
-              </Link>
-
-              <Link
-                to="/login"
-                className="hover:text-red-500 transition"
-              >
-                Sign In
-              </Link>
-
-            </div>
+          {/* Col 4: Platform Features */}
+          <div className="space-y-4">
+            <h4 className="text-white font-bold text-base tracking-wider uppercase">
+              Features
+            </h4>
+            <ul className="space-y-2.5">
+              <li className="flex items-center gap-2">
+                <span>🤖 AI Movie Assistant</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span>🎬 Real-time TMDB Search</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span>⚡ High-speed Streaming</span>
+              </li>
+            </ul>
           </div>
 
         </div>
 
-        {/* Creator */}
-
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-
-          <h3 className="text-white text-xl font-semibold">
-            Designed & Developed by Annanth P Jose
-          </h3>
-
-          <a
-            href="https://github.com/annanthpjose96/MERN-Movies-App"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block mt-4 text-red-500 hover:text-red-400 transition font-medium"
-          >
-            View Project on GitHub
-          </a>
-
-        </div>
-
-        {/* Copyright */}
-
-        <div className="border-t border-gray-800 mt-8 pt-6 text-center">
-
-          <p className="text-gray-500">
-            © {new Date().getFullYear()} Reelix. All Rights Reserved.
-          </p>
-
+        {/* Bottom Credits & Copyright */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-xs text-gray-500">
+          <p>© {new Date().getFullYear()} Reelix Inc. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <span>Designed & Developed for Movie Enthusiasts</span>
+          </div>
         </div>
 
       </div>

@@ -3,10 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import Loader from "../../component/Loader";
-
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useRegisterMutation } from "../../redux/api/users";
-
 import { toast } from "react-toastify";
 import Logo from "../../component/Logo";
 
@@ -20,13 +18,10 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [register, { isLoading }] = useRegisterMutation();
-
   const { userInfo } = useSelector((state) => state.auth);
-
   const { search } = useLocation();
 
   const sp = new URLSearchParams(search);
-
   const redirect = sp.get("redirect") || "/";
 
   useEffect(() => {
@@ -37,23 +32,15 @@ const Register = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
 
     try {
-      const res = await register({
-        username,
-        email,
-        password,
-      }).unwrap();
-
+      const res = await register({ username, email, password }).unwrap();
       dispatch(setCredentials({ ...res }));
-
       toast.success(`Welcome to Reelix, ${res.username}!`);
-
       navigate(redirect);
     } catch (err) {
       toast.error(err?.data?.message || "Registration Failed");
@@ -62,139 +49,115 @@ const Register = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center justify-center bg-cover bg-center px-6"
+      className="relative min-h-screen flex flex-col justify-between items-center bg-cover bg-center px-4 py-8"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop')",
       }}
     >
-      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0e] via-black/80 to-black/90 backdrop-blur-sm"></div>
 
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+      <div className="relative z-10 w-full flex justify-between items-center max-w-7xl mx-auto py-2">
+        <Logo size="md" />
+        <Link to="/" className="text-sm font-semibold text-gray-300 hover:text-white transition">
+          ← Back to Home
+        </Link>
+      </div>
 
-      {/* Register Card */}
-
-      <div className="relative z-10 w-full max-w-xl rounded-3xl bg-black/70 border border-gray-700 shadow-2xl backdrop-blur-xl p-10">
+      <div className="relative z-10 w-full max-w-md my-auto rounded-3xl bg-zinc-950/90 border border-zinc-800 shadow-2xl backdrop-blur-2xl p-6 sm:p-10">
         <div className="flex justify-center mb-6">
-          <Logo size="xl" />
+          <Logo size="lg" />
         </div>
 
-        <h1 className="text-center text-white text-4xl font-bold mt-8">
-          Create Account 🍿
+        <h1 className="text-center text-white text-2xl sm:text-3xl font-black tracking-tight">
+          Create Your Account
         </h1>
-
-        <p className="text-center text-gray-400 mt-3 mb-10">
-          Join Reelix and build your personal watchlist.
+        <p className="text-center text-gray-400 text-sm mt-2 mb-8">
+          Join Reelix to save watchlists and explore AI recommendations.
         </p>
 
-        <form onSubmit={submitHandler} className="space-y-6">
-          {/* Username */}
-
+        <form onSubmit={submitHandler} className="space-y-4">
           <div>
-            <label
-              htmlFor="username"
-              className="block text-gray-300 mb-2 font-medium"
-            >
+            <label htmlFor="username" className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-1.5">
               Full Name
             </label>
-
             <input
               type="text"
               id="username"
-              placeholder="Enter your full name"
+              placeholder="John Doe"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-5 py-4 rounded-xl bg-[#1a1a1a]/90 border border-gray-600 text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-red-600 focus:ring-2 focus:ring-red-600"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700/80 text-white placeholder-gray-500 outline-none text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
               required
             />
           </div>
 
-          {/* Email */}
-
           <div>
-            <label
-              htmlFor="email"
-              className="block text-gray-300 mb-2 font-medium"
-            >
+            <label htmlFor="email" className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-1.5">
               Email Address
             </label>
-
             <input
               type="email"
               id="email"
-              placeholder="Enter your email"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-5 py-4 rounded-xl bg-[#1a1a1a]/90 border border-gray-600 text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-red-600 focus:ring-2 focus:ring-red-600"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700/80 text-white placeholder-gray-500 outline-none text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
               required
             />
           </div>
 
-          {/* Password */}
-
           <div>
-            <label
-              htmlFor="password"
-              className="block text-gray-300 mb-2 font-medium"
-            >
+            <label htmlFor="password" className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-1.5">
               Password
             </label>
-
             <input
               type="password"
               id="password"
               placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-5 py-4 rounded-xl bg-[#1a1a1a]/90 border border-gray-600 text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-red-600 focus:ring-2 focus:ring-red-600"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700/80 text-white placeholder-gray-500 outline-none text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
               required
             />
           </div>
 
-          {/* Confirm Password */}
-
           <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-gray-300 mb-2 font-medium"
-            >
+            <label htmlFor="confirmPassword" className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-1.5">
               Confirm Password
             </label>
-
             <input
               type="password"
               id="confirmPassword"
-              placeholder="Confirm your password"
+              placeholder="Re-enter password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-5 py-4 rounded-xl bg-[#1a1a1a]/90 border border-gray-600 text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-red-600 focus:ring-2 focus:ring-red-600"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700/80 text-white placeholder-gray-500 outline-none text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
               required
             />
           </div>
-
-          {/* Register Button */}
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 transition-all duration-300 text-white text-lg font-semibold shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 transition duration-300 text-white font-bold shadow-lg shadow-red-600/30 disabled:opacity-50 mt-2"
           >
             {isLoading ? "Creating Account..." : "Create Account"}
           </button>
 
           {isLoading && (
-            <div className="flex justify-center">
+            <div className="flex justify-center pt-2">
               <Loader />
             </div>
           )}
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-gray-300">
+        <div className="mt-6 text-center border-t border-zinc-800/80 pt-5">
+          <p className="text-gray-400 text-sm">
             Already have an account?{" "}
             <Link
               to={redirect ? `/login?redirect=${redirect}` : "/login"}
-              className="text-red-500 hover:text-red-400 font-semibold transition"
+              className="text-red-500 hover:text-red-400 font-bold transition ml-1"
             >
               Sign In
             </Link>
@@ -202,10 +165,8 @@ const Register = () => {
         </div>
       </div>
 
-      {/* Bottom Text */}
-
-      <p className="relative z-10 mt-8 text-center text-gray-400 text-sm">
-        © {new Date().getFullYear()} Reelix. Discover. Watch. Enjoy.
+      <p className="relative z-10 text-center text-gray-500 text-xs py-2">
+        © {new Date().getFullYear()} Reelix. All rights reserved.
       </p>
     </section>
   );

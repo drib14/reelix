@@ -93,6 +93,11 @@ const movieSchema = new mongoose.Schema(
       default: "",
     },
 
+    videoUrl: {
+      type: String,
+      default: "",
+    },
+
     featured: {
       type: Boolean,
       default: false,

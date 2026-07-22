@@ -1,61 +1,70 @@
 import { Link } from "react-router-dom";
 
 const MovieCard = ({ movie }) => {
-  const getRatingColor = (rating) => {
-    if (rating >= 8.5) return "text-green-400";
-    if (rating >= 7) return "text-yellow-400";
-    return "text-red-400";
+  const getRatingBadge = (rating) => {
+    if (!rating) return null;
+    const num = Number(rating);
+    let colorClass = "bg-red-500/80 text-white border-red-400/40";
+    if (num >= 8.0) colorClass = "bg-[#10b981]/90 text-white border-emerald-400/40";
+    else if (num >= 6.5) colorClass = "bg-amber-500/90 text-white border-amber-400/40";
+
+    return (
+      <span className={`px-2 py-0.5 rounded-md text-xs font-bold border backdrop-blur-md shadow-md ${colorClass}`}>
+        ★ {num.toFixed(1)}
+      </span>
+    );
   };
 
   return (
     <Link
       to={`/movies/${movie._id}`}
-      className="group block rounded-2xl overflow-hidden bg-[#181818] transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_15px_40px_rgba(229,9,20,0.35)]"
+      className="group relative block rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 hover:-translate-y-2 hover:border-red-500/60 hover:shadow-[0_12px_30px_-5px_rgba(229,9,20,0.3)] flex flex-col h-full"
     >
-      {/* Poster */}
-
-      <div className="relative overflow-hidden">
+      {/* Poster Image Container */}
+      <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
         <img
-          src={movie.poster}
+          src={movie.image || movie.poster}
           alt={movie.name}
-          className="w-full h-[420px] object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
         />
 
-        {/* Dark Overlay */}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-      </div>
-
-      {/* Details */}
-
-      <div className="p-5">
-        <div className="flex items-center justify-between">
-          <span
-            className={`font-bold ${getRatingColor(movie.rating)}`}
-          >
-            ⭐ {movie.rating?.toFixed(1)}
-          </span>
-
-          <span className="text-gray-400 text-sm">
-            📅 {movie.year}
-          </span>
+        {/* Top Floating Badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
+          {movie.rating && getRatingBadge(movie.rating)}
+          {movie.year && (
+            <span className="bg-black/75 text-gray-200 text-xs font-semibold px-2 py-0.5 rounded-md backdrop-blur-md border border-white/10">
+              {movie.year}
+            </span>
+          )}
         </div>
 
-        <h2 className="text-white font-bold text-xl mt-3 line-clamp-2">
-          {movie.name}
-        </h2>
-
-        {/* Overview (appears on hover) */}
-
-        <div className="overflow-hidden max-h-0 opacity-0 group-hover:max-h-32 group-hover:opacity-100 transition-all duration-500">
-          <p className="text-gray-400 text-sm leading-6 mt-4 line-clamp-3">
-            {movie.overview}
-          </p>
-
-          <div className="mt-5 flex items-center text-red-500 font-semibold group-hover:text-red-400 transition">
-            ▶ View Details
+        {/* Hover Overlay with Play Button */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center text-xl shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
+            ▶
           </div>
         </div>
+      </div>
+
+      {/* Info Content */}
+      <div className="p-4 flex flex-col flex-1 justify-between bg-zinc-900/90">
+        <div>
+          <h3 className="text-white font-bold text-base sm:text-lg line-clamp-1 group-hover:text-red-400 transition-colors">
+            {movie.name}
+          </h3>
+          {movie.genre?.name && (
+            <p className="text-xs text-red-500 font-medium mt-1">
+              {movie.genre.name}
+            </p>
+          )}
+        </div>
+
+        {movie.overview && (
+          <p className="text-gray-400 text-xs line-clamp-2 mt-2 leading-relaxed">
+            {movie.overview}
+          </p>
+        )}
       </div>
     </Link>
   );

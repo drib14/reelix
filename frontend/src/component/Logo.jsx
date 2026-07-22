@@ -34,11 +34,11 @@ const Logo = ({ size = "md", withText = true, className = "" }) => {
             </linearGradient>
           </defs>
 
-          <!-- Badge -->
+          {/* Badge */}
           <rect x="32" y="32" width="448" height="448" rx="112" fill="#0D0D0E" stroke="url(#logoGrad)" strokeWidth="12" />
           <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#logoGlow)" />
 
-          <!-- Emblem R + Play -->
+          {/* Emblem R + Play */}
           <g>
             <rect x="140" y="120" width="56" height="272" rx="28" fill="url(#logoGrad)" />
             <path d="M 168 120 H 280 C 340 120 380 155 380 210 C 380 265 340 300 280 300 H 168 Z" fill="none" stroke="url(#logoGrad)" strokeWidth="52" strokeLinecap="round" strokeLinejoin="round" />
