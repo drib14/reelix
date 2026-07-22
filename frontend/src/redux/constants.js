@@ -1,6 +1,6 @@
 const formatBaseUrl = (url) => {
-  if (!url) return "";
-  let fullUrl = url.trim();
+  const fallback = "https://reelix-api.onrender.com";
+  let fullUrl = (url || fallback).trim();
   if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
     fullUrl = `https://${fullUrl}`;
   }
