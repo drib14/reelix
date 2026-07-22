@@ -42,7 +42,7 @@ services:
   # Service Name: reelix (if claimed, rename to reelix-web)
   # ---------------------------------------------------
   - type: web
-    name: reelix
+    name: reelix-web
     runtime: static
     buildCommand: cd frontend && npm install --no-audit --no-fund --loglevel=error && npm run build
     staticPublishPath: ./frontend/dist
