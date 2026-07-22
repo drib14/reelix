@@ -39,7 +39,7 @@ export const askMovieAI = async (sessionId, message) => {
         {
           role: "system",
           content: `
-You are MovieFlix AI.
+You are Reelix AI.
 
 You remember previous messages.
 

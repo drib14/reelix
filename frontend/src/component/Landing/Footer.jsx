@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Logo from "../Logo";
 
 const Footer = () => {
   return (
@@ -10,9 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
 
           <div>
-            <h2 className="text-red-600 text-4xl font-extrabold">
-              MovieFlix
-            </h2>
+            <Logo size="lg" className="mb-4" />
 
             <p className="text-gray-400 mt-4 leading-7">
               A Netflix-inspired movie streaming platform built using
@@ -100,7 +98,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-6 text-center">
 
           <p className="text-gray-500">
-            © {new Date().getFullYear()} MovieFlix. All Rights Reserved.
+            © {new Date().getFullYear()} Reelix. All Rights Reserved.
           </p>
 
         </div>

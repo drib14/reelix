@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_AI_API_URL || "http://localhost:3000/api/v1
 // Session Management
 // ======================================
 
-let sessionId = localStorage.getItem("movieflix-ai-session");
+let sessionId = localStorage.getItem("reelix-ai-session");
 
 export const askMovieAI = async (message) => {
   try {
@@ -29,7 +29,7 @@ export const askMovieAI = async (message) => {
     if (data.sessionId) {
       sessionId = data.sessionId;
       localStorage.setItem(
-        "movieflix-ai-session",
+        "reelix-ai-session",
         data.sessionId
       );
     }
@@ -48,6 +48,6 @@ export const askMovieAI = async (message) => {
 export const clearAISession = () => {
   sessionId = null;
 
-  localStorage.removeItem("movieflix-ai-session");
-  localStorage.removeItem("movieflix-ai-chat");
+  localStorage.removeItem("reelix-ai-session");
+  localStorage.removeItem("reelix-ai-chat");
 };

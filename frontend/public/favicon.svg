@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="reelixGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E50914" />
+      <stop offset="50%" stop-color="#FF2A54" />
+      <stop offset="100%" stop-color="#9B51E0" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF2A54" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#E50914" stop-opacity="0" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#E50914" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Badge -->
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="#0D0D0E" stroke="url(#reelixGrad)" stroke-width="6" />
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#glowGrad)" />
+
+  <!-- Reelix 'R' Film + Play Emblem -->
+  <g filter="url(#shadow)">
+    <!-- Vertical Film Stem -->
+    <rect x="140" y="120" width="56" height="272" rx="28" fill="url(#reelixGrad)" />
+    
+    <!-- Top Reel Loop of R -->
+    <path d="M 168 120 H 280 C 340 120 380 155 380 210 C 380 265 340 300 280 300 H 168 Z" fill="none" stroke="url(#reelixGrad)" stroke-width="52" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Dynamic Play Leg of R -->
+    <path d="M 240 260 L 360 392" fill="none" stroke="url(#reelixGrad)" stroke-width="52" stroke-linecap="round" />
+    
+    <!-- Play Triangle Notch inside loop -->
+    <polygon points="250,175 250,245 305,210" fill="#FFFFFF" opacity="0.95" />
+  </g>
+</svg>

@@ -9,6 +9,8 @@ import { useLoginMutation } from "../../redux/api/users";
 
 import { toast } from "react-toastify";
 
+import Logo from "../../component/Logo";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,12 +70,9 @@ const Login = () => {
       <div className="relative z-10 w-full max-w-lg rounded-3xl bg-black/70 border border-gray-700 shadow-2xl backdrop-blur-xl p-10">
         {/* Logo */}
 
-        <Link
-          to="/"
-          className="block text-center text-red-600 text-5xl font-extrabold tracking-wide"
-        >
-          MovieFlix
-        </Link>
+        <div className="flex justify-center mb-6">
+          <Logo size="xl" />
+        </div>
 
         <h1 className="text-center text-white text-4xl font-bold mt-8">
           Welcome Back 👋
@@ -159,7 +158,7 @@ const Login = () => {
       {/* Bottom Text */}
 
       <p className="relative z-10 mt-8 text-center text-gray-400 text-sm">
-        © {new Date().getFullYear()} MovieFlix. Discover. Watch. Enjoy.
+        © {new Date().getFullYear()} Reelix. Discover. Watch. Enjoy.
       </p>
     </section>
   );

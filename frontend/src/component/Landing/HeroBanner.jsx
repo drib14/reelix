@@ -29,7 +29,7 @@ const HeroBanner = ({ movie }) => {
           <p className="mt-8 text-gray-300 text-xl leading-9">
             Explore thousands of trending, popular, top-rated and upcoming
             movies. Search your favourites, discover hidden gems, and build
-            your own personal watchlist with MovieFlix.
+            your own personal watchlist with Reelix.
           </p>
 
         </div>

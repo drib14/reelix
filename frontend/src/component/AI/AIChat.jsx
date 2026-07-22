@@ -11,7 +11,7 @@ const DEFAULT_MESSAGES = [
     sender: "ai",
     type: "chat",
     text:
-      "👋 **Hello! I'm MovieFlix AI.**\n\n" +
+      "👋 **Hello! I'm Reelix AI.**\n\n" +
       "Ask me anything about movies.\n\n" +
       "🎬 Recommendations\n" +
       "🍿 What to watch\n" +
@@ -34,7 +34,7 @@ const SUGGESTED_PROMPTS = [
 
 const AIChat = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem("movieflix-ai-chat");
+    const saved = localStorage.getItem("reelix-ai-chat");
 
     if (!saved) return DEFAULT_MESSAGES;
 
@@ -53,7 +53,7 @@ const AIChat = ({ isOpen, onClose }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem("movieflix-ai-chat", JSON.stringify(messages));
+    localStorage.setItem("reelix-ai-chat", JSON.stringify(messages));
   }, [messages]);
 
   useEffect(() => {
@@ -144,7 +144,7 @@ const AIChat = ({ isOpen, onClose }) => {
           <div className="flex items-center gap-3">
             <FaRobot className="text-white text-lg" />
 
-            <h2 className="text-white font-bold text-2xl">MovieFlix AI</h2>
+            <h2 className="text-white font-bold text-2xl">Reelix AI</h2>
           </div>
 
           <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ const AIChat = ({ isOpen, onClose }) => {
           <input
             type="text"
             value={input}
-            placeholder="Ask MovieFlix AI..."
+            placeholder="Ask Reelix AI..."
             disabled={loading}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {

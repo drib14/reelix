@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { logout } from "../../redux/features/auth/authSlice";
 import { useLogoutMutation } from "../../redux/api/users";
 
+import Logo from "../Logo";
+
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -54,12 +56,7 @@ const Navbar = () => {
 
           {/* Logo */}
 
-          <Link
-            to="/"
-            className="text-red-600 text-3xl md:text-5xl font-extrabold tracking-wide"
-          >
-            MovieFlix
-          </Link>
+          <Logo size="md" />
 
           {/* Desktop Right */}
 

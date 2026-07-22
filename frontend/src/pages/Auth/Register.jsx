@@ -8,6 +8,7 @@ import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useRegisterMutation } from "../../redux/api/users";
 
 import { toast } from "react-toastify";
+import Logo from "../../component/Logo";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -51,7 +52,7 @@ const Register = () => {
 
       dispatch(setCredentials({ ...res }));
 
-      toast.success(`Welcome to MovieFlix, ${res.username}!`);
+      toast.success(`Welcome to Reelix, ${res.username}!`);
 
       navigate(redirect);
     } catch (err) {
@@ -74,19 +75,16 @@ const Register = () => {
       {/* Register Card */}
 
       <div className="relative z-10 w-full max-w-xl rounded-3xl bg-black/70 border border-gray-700 shadow-2xl backdrop-blur-xl p-10">
-        <Link
-          to="/"
-          className="block text-center text-red-600 text-5xl font-extrabold tracking-wide"
-        >
-          MovieFlix
-        </Link>
+        <div className="flex justify-center mb-6">
+          <Logo size="xl" />
+        </div>
 
         <h1 className="text-center text-white text-4xl font-bold mt-8">
           Create Account 🍿
         </h1>
 
         <p className="text-center text-gray-400 mt-3 mb-10">
-          Join MovieFlix and build your personal watchlist.
+          Join Reelix and build your personal watchlist.
         </p>
 
         <form onSubmit={submitHandler} className="space-y-6">
@@ -207,7 +205,7 @@ const Register = () => {
       {/* Bottom Text */}
 
       <p className="relative z-10 mt-8 text-center text-gray-400 text-sm">
-        © {new Date().getFullYear()} MovieFlix. Discover. Watch. Enjoy.
+        © {new Date().getFullYear()} Reelix. Discover. Watch. Enjoy.
       </p>
     </section>
   );
