@@ -44,7 +44,6 @@ services:
   - type: web
     name: reelix
     runtime: static
-    plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     routes:
