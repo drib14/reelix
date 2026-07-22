@@ -282,6 +282,7 @@ const MovieDetails = () => {
         title={playerConfig.title}
         videoUrl={playerConfig.videoUrl}
         isTrailer={playerConfig.isTrailer}
+        movie={movie}
       />
     </>
   );
