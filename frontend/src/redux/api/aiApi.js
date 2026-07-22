@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_AI_API_URL || "http://localhost:3000/api/v1/ai/chat";
+const getApiUrl = () => {
+  if (import.meta.env.VITE_AI_API_URL) return import.meta.env.VITE_AI_API_URL;
+  if (import.meta.env.VITE_BASE_URL) return `${import.meta.env.VITE_BASE_URL.replace(/\/$/, "")}/api/v1/ai/chat`;
+  return "http://localhost:3000/api/v1/ai/chat";
+};
 
 // ======================================
 // Session Management
@@ -8,7 +12,7 @@ let sessionId = localStorage.getItem("reelix-ai-session");
 
 export const askMovieAI = async (message) => {
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(getApiUrl(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
