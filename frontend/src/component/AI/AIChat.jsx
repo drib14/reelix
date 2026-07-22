@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FaPaperPlane, FaRobot, FaTimes, FaPlus } from "react-icons/fa";
+import { FaPaperPlane, FaRobot, FaTimes, FaPlus, FaFire, FaTrophy, FaRocket, FaSmile, FaGhost, FaHeart } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 
 import { askMovieAI, clearAISession } from "../../redux/api/aiApi";
@@ -10,22 +10,22 @@ const DEFAULT_MESSAGES = [
     sender: "ai",
     type: "chat",
     text:
-      "👋 **Hello! I'm Reelix AI Assistant.**\n\n" +
+      "**Hello! I'm Reelix AI Assistant.**\n\n" +
       "What kind of movie are you looking for today?\n\n" +
-      "• 🎬 Personalized recommendations\n" +
-      "• 🍿 Trending & Top-rated films\n" +
-      "• 🧠 Mind-bending Sci-Fi & Thrillers\n" +
-      "• 📖 Movie plot summaries & analysis",
+      "• Personalized recommendations\n" +
+      "• Trending & Top-rated films\n" +
+      "• Mind-bending Sci-Fi & Thrillers\n" +
+      "• Movie plot summaries & analysis",
   },
 ];
 
 const SUGGESTED_PROMPTS = [
-  "🔥 Trending Now",
-  "🏆 Highest Rated",
-  "🚀 Mind Bending Sci-Fi",
-  "😂 Comedy Hits",
-  "👻 Chilling Horror",
-  "❤️ Romantic Dramas",
+  { label: "Trending Now", icon: FaFire },
+  { label: "Highest Rated", icon: FaTrophy },
+  { label: "Mind Bending Sci-Fi", icon: FaRocket },
+  { label: "Comedy Hits", icon: FaSmile },
+  { label: "Chilling Horror", icon: FaGhost },
+  { label: "Romantic Dramas", icon: FaHeart },
 ];
 
 const AIChat = ({ isOpen, onClose }) => {
@@ -94,7 +94,7 @@ const AIChat = ({ isOpen, onClose }) => {
         {
           sender: "ai",
           type: "chat",
-          text: "❌ Sorry, I couldn't connect to the Reelix AI service. Please try again.",
+          text: "Sorry, I couldn't connect to the Reelix AI service. Please try again.",
         },
       ]);
     }
@@ -139,14 +139,15 @@ const AIChat = ({ isOpen, onClose }) => {
       {/* Suggested Quick Prompts */}
       <div className="border-b border-zinc-800/80 px-3 py-2.5 bg-zinc-900/50">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          {SUGGESTED_PROMPTS.map((prompt) => (
+          {SUGGESTED_PROMPTS.map(({ label, icon: Icon }) => (
             <button
-              key={prompt}
+              key={label}
               disabled={loading}
-              onClick={() => sendMessage(prompt)}
-              className="bg-zinc-800/90 hover:bg-red-600 hover:text-white transition rounded-full px-3 py-1 text-xs text-gray-300 font-medium whitespace-nowrap border border-zinc-700/60"
+              onClick={() => sendMessage(label)}
+              className="bg-zinc-800/90 hover:bg-red-600 hover:text-white transition rounded-full px-3 py-1 text-xs text-gray-300 font-medium whitespace-nowrap border border-zinc-700/60 flex items-center gap-1.5"
             >
-              {prompt}
+              <Icon className="text-[10px]" />
+              <span>{label}</span>
             </button>
           ))}
         </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { FaPlay, FaStar, FaFilm, FaHeart, FaCheck, FaArrowLeft } from "react-icons/fa";
 
 import {
   useGetSpecificMovieQuery,
@@ -94,7 +95,8 @@ const MovieDetails = () => {
             to="/movies"
             className="inline-flex items-center gap-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 transition-all duration-300 px-5 py-2.5 rounded-xl font-medium text-white text-sm backdrop-blur-md shadow-lg"
           >
-            ← Back to Catalog
+            <FaArrowLeft className="text-xs" />
+            <span>Back to Catalog</span>
           </Link>
         </div>
 
@@ -121,7 +123,8 @@ const MovieDetails = () => {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-4 text-sm sm:text-base text-gray-300 font-medium">
                 {movie.rating && (
                   <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 px-3 py-1 rounded-md font-bold flex items-center gap-1">
-                    ★ {movie.rating?.toFixed(1)}
+                    <FaStar className="text-xs" />
+                    <span>{movie.rating?.toFixed(1)}</span>
                   </span>
                 )}
                 {movie.year && <span>• {movie.year}</span>}
@@ -157,9 +160,9 @@ const MovieDetails = () => {
                       isTrailer: false,
                     });
                   }}
-                  className="bg-red-600 hover:bg-red-700 transition duration-300 rounded-xl px-8 py-4 text-white text-base sm:text-lg font-bold shadow-xl shadow-red-600/30 flex items-center gap-2 group transform hover:scale-105"
+                  className="bg-red-600 hover:bg-red-700 transition duration-300 rounded-xl px-8 py-4 text-white text-base sm:text-lg font-bold shadow-xl shadow-red-600/30 flex items-center gap-2.5 group transform hover:scale-105"
                 >
-                  <span className="text-xl">▶</span>
+                  <FaPlay className="text-sm pl-0.5" />
                   <span>Play Full Movie</span>
                 </button>
 
@@ -176,7 +179,8 @@ const MovieDetails = () => {
                     }}
                     className="bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 transition duration-300 rounded-xl px-6 py-4 text-white text-base sm:text-lg font-bold flex items-center gap-2 transform hover:scale-105"
                   >
-                    <span>🎬 Watch Trailer</span>
+                    <FaFilm className="text-red-500 text-base" />
+                    <span>Watch Trailer</span>
                   </button>
                 )}
 
@@ -189,7 +193,17 @@ const MovieDetails = () => {
                       : "bg-white text-black border-white hover:bg-gray-200"
                   }`}
                 >
-                  {isInWatchlist ? "✓ Saved" : "♡ Watchlist"}
+                  {isInWatchlist ? (
+                    <>
+                      <FaCheck className="text-sm text-emerald-500" />
+                      <span>Saved</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaHeart className="text-sm text-red-600" />
+                      <span>Watchlist</span>
+                    </>
+                  )}
                 </button>
               </div>
 

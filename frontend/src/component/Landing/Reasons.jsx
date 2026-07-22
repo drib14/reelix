@@ -1,22 +1,24 @@
+import { FaTv, FaDesktop, FaRobot, FaBookmark } from "react-icons/fa";
+
 const Reasons = () => {
   const reasonsList = [
     {
-      icon: "📺",
+      icon: FaTv,
       title: "Enjoy on your TV",
       description: "Watch on Smart TVs, PlayStation, Xbox, Chromecast, Apple TV, Blu-ray players, and more.",
     },
     {
-      icon: "📥",
+      icon: FaDesktop,
       title: "Watch Anywhere, Anytime",
       description: "Stream seamlessly on your phone, tablet, laptop, desktop, and smart television without interruption.",
     },
     {
-      icon: "🤖",
+      icon: FaRobot,
       title: "AI-Powered Movie Assistant",
       description: "Unsure what to watch? Ask Reelix AI for personalized recommendations based on mood or genre.",
     },
     {
-      icon: "✨",
+      icon: FaBookmark,
       title: "Build Your Watchlist",
       description: "Save movies to your custom watchlist with one click and keep track of films you want to see.",
     },
@@ -34,24 +36,27 @@ const Reasons = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {reasonsList.map((reason, index) => (
-          <div
-            key={index}
-            className="glass-card glass-card-hover p-6 sm:p-8 rounded-2xl flex flex-col justify-between"
-          >
-            <div>
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-red-600/20 to-purple-600/20 border border-red-500/30 flex items-center justify-center text-3xl mb-6 shadow-inner">
-                {reason.icon}
+        {reasonsList.map((reason, index) => {
+          const Icon = reason.icon;
+          return (
+            <div
+              key={index}
+              className="glass-card glass-card-hover p-6 sm:p-8 rounded-2xl flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-red-600/20 to-purple-600/20 border border-red-500/30 flex items-center justify-center text-red-500 text-2xl mb-6 shadow-inner">
+                  <Icon />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">
+                  {reason.title}
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  {reason.description}
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">
-                {reason.title}
-              </h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                {reason.description}
-              </p>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

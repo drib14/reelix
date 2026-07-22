@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { FaRobot, FaFilm, FaBolt } from "react-icons/fa";
 import Logo from "../Logo";
 
 const Footer = () => {
@@ -77,13 +78,16 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2.5">
               <li className="flex items-center gap-2">
-                <span>🤖 AI Movie Assistant</span>
+                <FaRobot className="text-red-500" />
+                <span>AI Movie Assistant</span>
               </li>
               <li className="flex items-center gap-2">
-                <span>🎬 Real-time TMDB Search</span>
+                <FaFilm className="text-red-500" />
+                <span>Real-time TMDB Search</span>
               </li>
               <li className="flex items-center gap-2">
-                <span>⚡ High-speed Streaming</span>
+                <FaBolt className="text-red-500" />
+                <span>High-speed Streaming</span>
               </li>
             </ul>
           </div>

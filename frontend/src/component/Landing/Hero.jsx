@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import { FaCompass, FaHeart, FaArrowRight } from "react-icons/fa";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center justify-center bg-cover bg-center pt-24 pb-16 overflow-hidden"
+    <section
+      className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center justify-center bg-cover bg-center pt-24 pb-16 overflow-hidden"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1920&auto=format&fit=crop')",
@@ -36,17 +38,19 @@ const Hero = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
           <Link
             to="/movies"
-            className="w-full sm:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 transition duration-300 rounded-xl text-white text-base sm:text-lg font-bold shadow-xl shadow-red-600/30 hover:shadow-red-600/50 flex items-center justify-center gap-2 group"
+            className="w-full sm:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 transition duration-300 rounded-xl text-white text-base sm:text-lg font-bold shadow-xl shadow-red-600/30 hover:shadow-red-600/50 flex items-center justify-center gap-2.5 group"
           >
-            <span>🎬 Explore Movies</span>
-            <span className="group-hover:translate-x-1 transition-transform">→</span>
+            <FaCompass className="text-base" />
+            <span>Explore Movies</span>
+            <FaArrowRight className="group-hover:translate-x-1 transition-transform text-xs" />
           </Link>
 
           <Link
             to="/watchlist"
-            className="w-full sm:w-auto px-8 py-4 bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-700/80 transition duration-300 rounded-xl text-white text-base sm:text-lg font-bold backdrop-blur-sm flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-700/80 transition duration-300 rounded-xl text-white text-base sm:text-lg font-bold backdrop-blur-sm flex items-center justify-center gap-2.5"
           >
-            <span>❤️ My Watchlist</span>
+            <FaHeart className="text-red-500 text-base" />
+            <span>My Watchlist</span>
           </Link>
         </div>
 
