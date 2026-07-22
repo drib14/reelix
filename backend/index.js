@@ -77,6 +77,14 @@ app.use(cookieParser());
 const PORT = process.env.PORT || 3000;
 
 // ==============================
+// Health Check Endpoint
+// ==============================
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Reelix API is live" });
+});
+
+// ==============================
 // API Routes
 // ==============================
 

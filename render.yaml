@@ -14,7 +14,7 @@ services:
     region: singapore
     buildCommand: npm install --no-audit --no-fund --loglevel=error
     startCommand: node backend/index.js
-    healthCheckPath: /api/v1/movies
+    healthCheckPath: /health
     envVars:
       - key: PORT
         value: 10000
