@@ -52,7 +52,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_BASE_URL
-        fromService:
-          type: web
-          name: reelix-api
-          property: host
+        value: https://reelix-api.onrender.com

@@ -1,9 +1,15 @@
 const getApiUrl = () => {
   if (import.meta.env.VITE_AI_API_URL) return import.meta.env.VITE_AI_API_URL;
-  const baseUrl = import.meta.env.VITE_BASE_URL || "";
-  const normalizedBase =
-    baseUrl && !baseUrl.startsWith("http") ? `https://${baseUrl}` : baseUrl;
-  if (normalizedBase) return `${normalizedBase.replace(/\/$/, "")}/api/v1/ai/chat`;
+  let baseUrl = (import.meta.env.VITE_BASE_URL || "").trim();
+  if (baseUrl) {
+    if (!baseUrl.startsWith("http://") && !baseUrl.startsWith("https://")) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    if (!baseUrl.includes(".")) {
+      baseUrl = `${baseUrl}.onrender.com`;
+    }
+    return `${baseUrl.replace(/\/$/, "")}/api/v1/ai/chat`;
+  }
   return "http://localhost:3000/api/v1/ai/chat";
 };
 
