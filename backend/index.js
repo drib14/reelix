@@ -117,6 +117,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+// 404 Handler for undefined API endpoints
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ success: false, message: "API route not found" });
+});
+
+
 // ==============================
 // Start Server
 // ==============================
