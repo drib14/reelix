@@ -6,6 +6,7 @@ import {
   getUpcomingMovies,
   getMovieDetails,
   getTvDetails,
+  getTvSeasonDetails,
   searchTMDBMovies,
   getGenres,
   getTvGenres,
@@ -37,7 +38,60 @@ const getAllMovies = async (req, res) => {
 
 const getSpecificMovie = async (req, res) => {
   try {
-    const movie = await getMovieDetails(req.params.id);
+    let movie;
+    let isTv = false;
+
+    try {
+      movie = await getMovieDetails(req.params.id);
+    } catch (movieErr) {
+      // Fallback: Check if ID is actually a TV Series
+      try {
+        movie = await getTvDetails(req.params.id);
+        isTv = true;
+      } catch (tvErr) {
+        throw movieErr;
+      }
+    }
+
+    if (isTv) {
+      const trailer = movie.videos?.results?.find(
+        (video) => video.site === "YouTube" && (video.type === "Trailer" || video.type === "Teaser")
+      );
+
+      const formattedTv = {
+        _id: movie.id,
+        name: movie.name || movie.original_name,
+        media_type: "tv",
+        poster: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : "",
+        backdrop: movie.backdrop_path ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}` : "",
+        overview: movie.overview,
+        releaseDate: movie.first_air_date,
+        year: movie.first_air_date ? parseInt(movie.first_air_date.split("-")[0]) : null,
+        rating: movie.vote_average,
+        genres: movie.genres || [],
+        trailer: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+        numberOfSeasons: movie.number_of_seasons,
+        numberOfEpisodes: movie.number_of_episodes,
+        seasons: movie.seasons || [],
+        cast: movie.credits?.cast?.slice(0, 10).map((actor) => ({
+          id: actor.id,
+          name: actor.name,
+          character: actor.character,
+          image: actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : "",
+        })) || [],
+        similar: movie.similar?.results?.slice(0, 10).map((item) => ({
+          id: item.id,
+          name: item.name || item.title,
+          media_type: "tv",
+          poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : "",
+        })) || [],
+        reviews: [],
+        numReviews: 0,
+      };
+
+      return res.json(formattedTv);
+    }
 
     const trailer = movie.videos?.results?.find(
       (video) => video.site === "YouTube" && video.type === "Trailer"
@@ -583,6 +637,63 @@ const getTvDetailsController = async (req, res) => {
   }
 };
 
+const getTvSeasonDetailsController = async (req, res) => {
+  try {
+    const { id, seasonNumber } = req.params;
+    const sNum = parseInt(seasonNumber) || 1;
+
+    try {
+      const seasonData = await getTvSeasonDetails(id, sNum);
+
+      const formattedSeason = {
+        season_number: seasonData.season_number,
+        name: seasonData.name || `Season ${seasonData.season_number}`,
+        overview: seasonData.overview || "",
+        poster: seasonData.poster_path ? `https://image.tmdb.org/t/p/w500${seasonData.poster_path}` : "",
+        episodes: (seasonData.episodes || []).map((ep) => ({
+          episodeNumber: ep.episode_number,
+          title: ep.name || `Episode ${ep.episode_number}`,
+          overview: ep.overview || `Episode ${ep.episode_number} of Season ${seasonData.season_number}.`,
+          still: ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : "",
+          runtime: ep.runtime || 24,
+          airDate: ep.air_date || "",
+          voteAverage: ep.vote_average || 0,
+        })),
+      };
+
+      return res.json(formattedSeason);
+    } catch (tmdbErr) {
+      // Fallback for custom DB series or TMDB error
+      const movie = await Movie.findById(id).catch(() => null);
+      const totalEps = movie?.numberOfEpisodes || 24;
+      const fallbackEps = [];
+
+      for (let ep = 1; ep <= totalEps; ep++) {
+        fallbackEps.push({
+          episodeNumber: ep,
+          title: `Episode ${ep}`,
+          overview: `Episode ${ep} of Season ${sNum}. Stream in 1080p Ultra HD across all available servers.`,
+          still: "",
+          runtime: 24,
+          airDate: "",
+          voteAverage: 8.0,
+        });
+      }
+
+      return res.json({
+        season_number: sNum,
+        name: `Season ${sNum}`,
+        overview: "",
+        poster: "",
+        episodes: fallbackEps,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // =======================
 // Discover Movies & TV Shows Multi-Criteria
 // =======================
@@ -706,6 +817,7 @@ export {
   getPlatformsController,
   getCountriesController,
   getTvDetailsController,
+  getTvSeasonDetailsController,
   discoverMoviesController,
   searchMovies,
 };

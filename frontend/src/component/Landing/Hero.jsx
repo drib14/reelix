@@ -238,6 +238,11 @@ const Hero = () => {
           videoUrl={playerConfig.movie?.videoUrl}
           isTrailer={playerConfig.isTrailer}
           movie={playerConfig.movie}
+          season={playerConfig.season || 1}
+          episode={playerConfig.episode || 1}
+          onSelectEpisode={(sNum, epNum) =>
+            setPlayerConfig((prev) => ({ ...prev, season: sNum, episode: epNum }))
+          }
         />
       )}
     </>

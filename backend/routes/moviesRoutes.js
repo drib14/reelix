@@ -22,6 +22,7 @@ import {
   getPlatformsController,
   getCountriesController,
   getTvDetailsController,
+  getTvSeasonDetailsController,
   discoverMoviesController,
   searchMovies,
 } from "../controllers/movieController.js";
@@ -37,6 +38,8 @@ router.get("/all-movies", getAllMovies);
 router.get("/specific-movie/:id", getSpecificMovie);
 
 router.get("/tv/:id", getTvDetailsController);
+
+router.get("/tv/:id/season/:seasonNumber", getTvSeasonDetailsController);
 
 router.get("/new-movies", getNewMovies);
 

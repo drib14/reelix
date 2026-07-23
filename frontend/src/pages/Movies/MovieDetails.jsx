@@ -18,11 +18,13 @@ import { getCountryFlag } from "../../utils/countryUtils";
 import {
   useGetSpecificMovieQuery,
   useGetTvDetailsQuery,
+  useGetTvSeasonDetailsQuery,
   useAddMovieReviewMutation,
 } from "../../redux/api/movies";
 
 import MovieTabs from "./MovieTabs";
 import MoviePlayerModal from "../../component/MoviePlayerModal";
+import SEO from "../../component/SEO";
 
 import {
   addToWatchlist,
@@ -90,17 +92,45 @@ const MovieDetails = () => {
     }
   };
 
-  // Determine number of seasons & generate episode list for active season
+  // Determine number of seasons & fetch real TMDB season details
   const isSeries = movie?.media_type === "tv" || isTvType || !!movie?.numberOfSeasons;
-  const totalSeasonsCount = movie?.numberOfSeasons || movie?.seasons?.length || 1;
 
-  // Active Season Episode List Generator
+  const { data: seasonDetailsData, isLoading: loadingSeasonDetails } = useGetTvSeasonDetailsQuery(
+    { id: movieId, season: selectedSeason },
+    { skip: !isSeries || !movieId }
+  );
+
+  const availableSeasons = useMemo(() => {
+    if (movie?.seasons && movie.seasons.length > 0) {
+      const validSeasons = movie.seasons.filter((s) => s.season_number > 0);
+      if (validSeasons.length > 0) {
+        return validSeasons.map((s) => {
+          const sName = s.name || "";
+          const hasCustomName = sName && !sName.toLowerCase().startsWith("season ") && sName !== `Season ${s.season_number}`;
+          return {
+            seasonNumber: s.season_number,
+            name: sName,
+            displayName: hasCustomName ? `Season ${s.season_number}: ${sName}` : (sName || `Season ${s.season_number}`),
+            episodeCount: s.episode_count || 24,
+          };
+        });
+      }
+    }
+    const count = movie?.numberOfSeasons || 1;
+    return Array.from({ length: count }, (_, i) => ({
+      seasonNumber: i + 1,
+      displayName: `Season ${i + 1}`,
+      episodeCount: 24,
+    }));
+  }, [movie]);
+
+  const totalSeasonsCount = availableSeasons.length;
+
   const currentSeasonData = useMemo(() => {
-    if (!movie?.seasons) return null;
-    return movie.seasons.find((s) => s.season_number === selectedSeason) || movie.seasons[0];
-  }, [movie, selectedSeason]);
+    return availableSeasons.find((s) => s.seasonNumber === selectedSeason) || availableSeasons[0];
+  }, [availableSeasons, selectedSeason]);
 
-  const totalEpisodesInSeason = currentSeasonData?.episode_count || movie?.numberOfEpisodes || 24;
+  const totalEpisodesInSeason = seasonDetailsData?.episodes?.length || currentSeasonData?.episodeCount || 24;
 
   const generatedEpisodesList = useMemo(() => {
     const list = [];
@@ -109,19 +139,36 @@ const MovieDetails = () => {
         episodeNumber: ep,
         title: `Episode ${ep}`,
         overview: `Episode ${ep} of Season ${selectedSeason}. Stream in 1080p Ultra HD across all available servers.`,
+        still: "",
+        runtime: 24,
       });
     }
     return list;
   }, [totalEpisodesInSeason, selectedSeason]);
 
+  const activeEpisodesList = useMemo(() => {
+    if (seasonDetailsData?.episodes && seasonDetailsData.episodes.length > 0) {
+      return seasonDetailsData.episodes.map((ep) => ({
+        episodeNumber: ep.episodeNumber,
+        title: ep.title ? `EP ${ep.episodeNumber}: ${ep.title}` : `Episode ${ep.episodeNumber}`,
+        rawTitle: ep.title || `Episode ${ep.episodeNumber}`,
+        overview: ep.overview || `Episode ${ep.episodeNumber} of Season ${selectedSeason}.`,
+        still: ep.still || "",
+        runtime: ep.runtime || 24,
+      }));
+    }
+    return generatedEpisodesList;
+  }, [seasonDetailsData, generatedEpisodesList, selectedSeason]);
+
   // Episode Filtration (by Range Chunks & Quick Search)
   const filteredEpisodesList = useMemo(() => {
-    return generatedEpisodesList.filter((ep) => {
+    return activeEpisodesList.filter((ep) => {
       // Search filter
       if (episodeSearch.trim()) {
         const epNumStr = String(ep.episodeNumber);
-        const searchStr = episodeSearch.trim();
-        if (!epNumStr.includes(searchStr)) return false;
+        const searchStr = episodeSearch.trim().toLowerCase();
+        const titleStr = ep.title.toLowerCase();
+        if (!epNumStr.includes(searchStr) && !titleStr.includes(searchStr)) return false;
       }
 
       // Range Chunk filter
@@ -131,7 +178,7 @@ const MovieDetails = () => {
       const end = endStr ? parseInt(endStr) : 9999;
       return ep.episodeNumber >= start && ep.episodeNumber <= end;
     });
-  }, [generatedEpisodesList, episodeRange, episodeSearch]);
+  }, [activeEpisodesList, episodeRange, episodeSearch]);
 
   // Generate Episode Range Chunks (e.g. 1-25, 26-50, 51-75)
   const rangeChunks = useMemo(() => {
@@ -175,6 +222,12 @@ const MovieDetails = () => {
 
   return (
     <>
+      <SEO
+        title={`${movie.name}${movie.year ? ` (${movie.year})` : ""} — Watch HD on Reelix`}
+        description={movie.overview ? movie.overview.substring(0, 160) : `Stream ${movie.name} in 1080p Ultra HD across 8 global servers on Reelix.`}
+        image={movie.backdrop || movie.poster}
+      />
+
       {/* ================= HERO ================= */}
       <section className="relative min-h-screen w-full overflow-hidden pt-20">
         <img
@@ -374,11 +427,11 @@ const MovieDetails = () => {
                     setSelectedSeason(Number(e.target.value));
                     setSelectedEpisode(1);
                   }}
-                  className="bg-zinc-900 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl outline-none border border-zinc-700 cursor-pointer"
+                  className="bg-zinc-900 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl outline-none border border-zinc-700 cursor-pointer max-w-xs sm:max-w-md truncate"
                 >
-                  {Array.from({ length: Math.max(1, totalSeasonsCount) }, (_, i) => i + 1).map((sNum) => (
-                    <option key={sNum} value={sNum}>
-                      Season {sNum}
+                  {availableSeasons.map((s) => (
+                    <option key={s.seasonNumber} value={s.seasonNumber}>
+                      {s.displayName} ({s.episodeCount} Episodes)
                     </option>
                   ))}
                 </select>
@@ -417,7 +470,7 @@ const MovieDetails = () => {
                 <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs" />
                 <input
                   type="text"
-                  placeholder="Jump to Ep #..."
+                  placeholder="Search Ep title / #..."
                   value={episodeSearch}
                   onChange={(e) => setEpisodeSearch(e.target.value)}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-gray-500 outline-none focus:border-red-600"
@@ -426,74 +479,116 @@ const MovieDetails = () => {
             </div>
 
             {/* Episode Grid Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredEpisodesList.map((ep) => {
-                const isCurrentPlaying = selectedSeason === selectedSeason && selectedEpisode === ep.episodeNumber && playerConfig.isOpen;
+            {loadingSeasonDetails ? (
+              <div className="py-12 text-center flex flex-col items-center justify-center">
+                <div className="w-8 h-8 border-3 border-red-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+                <p className="text-xs text-gray-400">Loading {currentSeasonData?.displayName || `Season ${selectedSeason}`} episodes...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredEpisodesList.map((ep) => {
+                  const isCurrentPlaying = playerConfig.isOpen && playerConfig.season === selectedSeason && playerConfig.episode === ep.episodeNumber;
 
-                // Check stored watch progress
-                const storageKey = `reelix_progress_${movie._id || movie.id}_s${selectedSeason}_e${ep.episodeNumber}`;
-                const savedProgressRaw = localStorage.getItem(storageKey);
-                const savedProgress = savedProgressRaw ? JSON.parse(savedProgressRaw) : null;
+                  // Check stored watch progress
+                  const storageKey = `reelix_progress_${movie._id || movie.id}_s${selectedSeason}_e${ep.episodeNumber}`;
+                  const savedProgressRaw = localStorage.getItem(storageKey);
+                  const savedProgress = savedProgressRaw ? JSON.parse(savedProgressRaw) : null;
 
-                return (
-                  <div
-                    key={ep.episodeNumber}
-                    onClick={() => playEpisodeHandler(selectedSeason, ep.episodeNumber)}
-                    className={`group relative rounded-2xl overflow-hidden bg-zinc-900 border transition-all duration-300 cursor-pointer p-4 flex flex-col justify-between ${
-                      isCurrentPlaying
-                        ? "border-red-600 ring-2 ring-red-600 bg-red-950/20 shadow-xl"
-                        : "border-zinc-800 hover:border-zinc-700 hover:-translate-y-1"
-                    }`}
-                  >
-                    <div>
-                      {/* Top Header Row */}
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="bg-red-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">
-                          EP {ep.episodeNumber}
-                        </span>
-                        {isCurrentPlaying ? (
-                          <span className="text-[10px] bg-red-600 text-white font-extrabold px-2 py-0.5 rounded-md animate-pulse flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                            <span>NOW PLAYING</span>
-                          </span>
-                        ) : savedProgress?.percent >= 90 ? (
-                          <span className="text-[10px] bg-emerald-600/90 text-white font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <FaCheck className="text-[9px]" />
-                            <span>WATCHED</span>
-                          </span>
-                        ) : null}
+                  return (
+                    <div
+                      key={ep.episodeNumber}
+                      onClick={() => playEpisodeHandler(selectedSeason, ep.episodeNumber)}
+                      className={`group relative rounded-2xl overflow-hidden bg-zinc-900 border transition-all duration-300 cursor-pointer flex flex-col justify-between ${
+                        isCurrentPlaying
+                          ? "border-red-600 ring-2 ring-red-600 bg-red-950/20 shadow-xl"
+                          : "border-zinc-800 hover:border-zinc-700 hover:-translate-y-1"
+                      }`}
+                    >
+                      {/* Optional Episode Still Thumbnail */}
+                      {ep.still ? (
+                        <div className="relative aspect-video w-full overflow-hidden bg-zinc-950">
+                          <img
+                            src={ep.still}
+                            alt={ep.title}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-black/60"></div>
+                          <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10">
+                            <span className="bg-red-600/90 backdrop-blur-md text-white font-black text-[11px] px-2 py-0.5 rounded-md shadow">
+                              EP {ep.episodeNumber}
+                            </span>
+                            {isCurrentPlaying ? (
+                              <span className="text-[10px] bg-red-600 text-white font-extrabold px-2 py-0.5 rounded-md animate-pulse flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                                <span>PLAYING</span>
+                              </span>
+                            ) : savedProgress?.percent >= 90 ? (
+                              <span className="text-[10px] bg-emerald-600/90 text-white font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <FaCheck className="text-[9px]" />
+                                <span>WATCHED</span>
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="absolute bottom-2 left-2 text-[10px] font-bold text-gray-300 bg-black/70 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                            {ep.runtime} min
+                          </div>
+                        </div>
+                      ) : null}
+
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          {!ep.still && (
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="bg-red-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">
+                                EP {ep.episodeNumber}
+                              </span>
+                              {isCurrentPlaying ? (
+                                <span className="text-[10px] bg-red-600 text-white font-extrabold px-2 py-0.5 rounded-md animate-pulse flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                                  <span>NOW PLAYING</span>
+                                </span>
+                              ) : savedProgress?.percent >= 90 ? (
+                                <span className="text-[10px] bg-emerald-600/90 text-white font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                                  <FaCheck className="text-[9px]" />
+                                  <span>WATCHED</span>
+                                </span>
+                              ) : null}
+                            </div>
+                          )}
+
+                          <h3 className="text-white font-bold text-sm line-clamp-1 group-hover:text-red-400 transition">
+                            {ep.title}
+                          </h3>
+                          <p className="text-gray-400 text-xs line-clamp-2 mt-1 leading-relaxed">
+                            {ep.overview}
+                          </p>
+                        </div>
+
+                        {/* Bottom Play Action & Progress Line */}
+                        <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between">
+                          <span className="text-[11px] text-gray-500 font-medium">1080p HD</span>
+                          <button className="bg-zinc-800 group-hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                            <FaPlay className="text-[9px]" />
+                            <span>Watch</span>
+                          </button>
+                        </div>
                       </div>
 
-                      <h3 className="text-white font-bold text-sm line-clamp-1 group-hover:text-red-400 transition">
-                        {ep.title}
-                      </h3>
-                      <p className="text-gray-400 text-xs line-clamp-2 mt-1 leading-relaxed">
-                        {ep.overview}
-                      </p>
+                      {/* Bottom Progress Line */}
+                      {savedProgress && savedProgress.percent < 90 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800">
+                          <div
+                            style={{ width: `${savedProgress.percent}%` }}
+                            className="h-full bg-red-600"
+                          ></div>
+                        </div>
+                      )}
                     </div>
-
-                    {/* Bottom Play Action & Progress Line */}
-                    <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between">
-                      <span className="text-[11px] text-gray-500 font-medium">1080p HD</span>
-                      <button className="bg-zinc-800 group-hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-                        <FaPlay className="text-[9px]" />
-                        <span>Watch</span>
-                      </button>
-                    </div>
-
-                    {/* Bottom Progress Line */}
-                    {savedProgress && savedProgress.percent < 90 && (
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800">
-                        <div
-                          style={{ width: `${savedProgress.percent}%` }}
-                          className="h-full bg-red-600"
-                        ></div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -538,6 +633,49 @@ const MovieDetails = () => {
           />
         </div>
       </section>
+
+      {/* ================= FLOATING STICKY MOBILE PLAY BAR ================= */}
+      {isSeries ? (
+        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 bg-zinc-950/95 border border-red-600/60 rounded-2xl p-3 shadow-2xl backdrop-blur-xl flex items-center justify-between animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center gap-3 min-w-0 pr-2">
+            <div className="w-10 h-10 rounded-xl bg-zinc-900 overflow-hidden flex-shrink-0 border border-zinc-700">
+              <img src={movie.poster} alt={movie.name} className="w-full h-full object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-white font-extrabold text-xs truncate">{movie.name}</h4>
+              <p className="text-gray-400 text-[11px] truncate">
+                {currentSeasonData?.displayName || `Season ${selectedSeason}`} • EP {selectedEpisode}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => playEpisodeHandler(selectedSeason, selectedEpisode)}
+            className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-red-600/40 flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+          >
+            <FaPlay className="text-[10px]" />
+            <span>Stream S{selectedSeason}:E{selectedEpisode}</span>
+          </button>
+        </div>
+      ) : (
+        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 bg-zinc-950/95 border border-red-600/60 rounded-2xl p-3 shadow-2xl backdrop-blur-xl flex items-center justify-between animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center gap-3 min-w-0 pr-2">
+            <div className="w-10 h-10 rounded-xl bg-zinc-900 overflow-hidden flex-shrink-0 border border-zinc-700">
+              <img src={movie.poster} alt={movie.name} className="w-full h-full object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-white font-extrabold text-xs truncate">{movie.name}</h4>
+              <p className="text-gray-400 text-[11px] truncate">Full Movie • 1080p HD</p>
+            </div>
+          </div>
+          <button
+            onClick={() => playEpisodeHandler(1, 1)}
+            className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-red-600/40 flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+          >
+            <FaPlay className="text-[10px]" />
+            <span>Play Movie</span>
+          </button>
+        </div>
+      )}
 
       {/* ================= MOVIE & TV PLAYER MODAL ================= */}
       <MoviePlayerModal

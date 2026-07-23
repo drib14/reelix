@@ -149,6 +149,17 @@ export const getTvDetails = async (id) => {
   return data;
 };
 
+export const getTvSeasonDetails = async (id, seasonNumber) => {
+  const tmdb = getTMDB();
+
+  const { data } = await tmdb.get(
+    `/tv/${id}/season/${seasonNumber}`
+  );
+
+  return data;
+};
+
+
 // =======================
 // Search Movies & TV
 // =======================

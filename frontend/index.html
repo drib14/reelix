@@ -1,13 +1,77 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reelix — Stream & Discover Movies</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#e50914" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+  <!-- Primary Meta Tags -->
+  <title>Reelix</title>
+  <meta name="title" content="Reelix — Watch & Stream Blockbuster Movies, TV Series & Anime in 1080p Ultra HD" />
+  <meta name="description"
+    content="Stream thousands of trending movies, popular TV series, and anime in 1080p Ultra HD on Reelix. Explore top rated cinema, streaming provider availability (Netflix, Disney+, Prime), and stream instantly across 8 global HD servers." />
+  <meta name="keywords"
+    content="Reelix, movie streaming, watch movies online free, stream TV series, anime 1080p HD, HD movie streaming, free streaming website, watch One Piece online, movie database, stream online, cinema streaming" />
+  <meta name="author" content="Reelix Entertainment" />
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg" />
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Reelix" />
+  <meta property="og:title" content="Reelix — Watch & Stream Movies, TV Series & Anime in 1080p Ultra HD" />
+  <meta property="og:description"
+    content="Stream thousands of trending movies, popular TV series, and anime in 1080p Ultra HD on Reelix. Fast streaming, zero ads, multi-server mirror support." />
+  <meta property="og:image"
+    content="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1200&auto=format&fit=crop" />
+
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Reelix — Watch & Stream Movies, TV Series & Anime in 1080p Ultra HD" />
+  <meta name="twitter:description"
+    content="Stream thousands of trending movies, popular TV series, and anime in 1080p Ultra HD on Reelix." />
+  <meta name="twitter:image"
+    content="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1200&auto=format&fit=crop" />
+
+  <!-- Structured Data JSON-LD for Google & Search Crawlers -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Reelix",
+      "alternateName": ["Reelix Streaming", "Reelix Movies & TV"],
+      "url": "https://reelix.app",
+      "description": "Stream thousands of blockbuster movies, TV series, and anime in 1080p Ultra HD.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://reelix.app/movies/search?keyword={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Reelix Media",
+      "url": "https://reelix.app",
+      "logo": "https://reelix.app/favicon.svg",
+      "sameAs": [
+        "https://twitter.com/reelix",
+        "https://github.com/reelix"
+      ]
+    }
+  </script>
+</head>
+
+<body class="bg-black text-white selection:bg-red-600 selection:text-white">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

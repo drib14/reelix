@@ -36,16 +36,16 @@ const MovieCard = ({ movie }) => {
         />
 
         {/* Top Floating Badges */}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10 pointer-events-none">
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10 pointer-events-none">
           {movie.rating ? getRatingBadge(movie.rating) : <div />}
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="flex items-center gap-1 ml-auto flex-wrap justify-end">
             {originCountryCode && (
-              <span className="bg-black/80 text-white text-[12px] px-1.5 py-0.5 rounded-md backdrop-blur-md border border-white/10 shadow" title={`Origin Country: ${originCountryCode}`}>
+              <span className="bg-black/80 text-white text-[10px] sm:text-[12px] px-1.5 py-0.5 rounded-md backdrop-blur-md border border-white/10 shadow" title={`Origin Country: ${originCountryCode}`}>
                 {getCountryFlag(originCountryCode)}
               </span>
             )}
 
-            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1 ${
+            <span className={`text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1 ${
               isTv
                 ? "bg-purple-600/90 text-white border-purple-400/40"
                 : "bg-blue-600/90 text-white border-blue-400/40"
@@ -55,7 +55,7 @@ const MovieCard = ({ movie }) => {
             </span>
 
             {movie.year && (
-              <span className="bg-black/80 text-gray-200 text-[11px] font-bold px-2 py-0.5 rounded-md backdrop-blur-md border border-white/10">
+              <span className="hidden sm:inline-block bg-black/80 text-gray-200 text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md backdrop-blur-md border border-white/10">
                 {movie.year}
               </span>
             )}

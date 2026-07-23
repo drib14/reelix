@@ -114,6 +114,10 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
       query: (id) => `${MOVIE_URL}/tv/${id}`,
     }),
 
+    getTvSeasonDetails: builder.query({
+      query: ({ id, season }) => `${MOVIE_URL}/tv/${id}/season/${season}`,
+    }),
+
     // =========================
     // DISCOVER MOVIES & TV
     // =========================
@@ -169,6 +173,7 @@ export const {
   useDeleteCommentMutation,
   useGetSpecificMovieQuery,
   useGetTvDetailsQuery,
+  useGetTvSeasonDetailsQuery,
   useUploadImageMutation,
   useDeleteMovieMutation,
 

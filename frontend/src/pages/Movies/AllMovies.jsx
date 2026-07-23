@@ -4,6 +4,7 @@ import Navbar from "../../component/Landing/Navbar";
 import HeroBanner from "../../component/Landing/HeroBanner";
 import MovieGrid from "./MovieGrid";
 import FilterBar from "../../component/Explorer/FilterBar";
+import SEO from "../../component/SEO";
 import { getCountryFlag } from "../../utils/countryUtils";
 
 import {
@@ -66,6 +67,10 @@ const AllMovies = () => {
 
   return (
     <div className="min-h-screen bg-black text-white w-full">
+      <SEO
+        title={mediaType === "tv" ? "Discover TV Series & Anime — Reelix" : "Discover Blockbuster Movies — Reelix"}
+        description={`Explore thousands of ${mediaType === "tv" ? "TV series and anime" : "movies"} on Reelix. Filter by genre, streaming platform (Netflix, Disney+, Prime Video), release year, and country.`}
+      />
       <Navbar />
 
       <HeroBanner movie={discoverMedia[0]} />
