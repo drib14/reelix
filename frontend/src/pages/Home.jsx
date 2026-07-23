@@ -1,6 +1,5 @@
 import Navbar from "../component/Landing/Navbar";
 import Hero from "../component/Landing/Hero";
-import PlatformsMarquee from "../component/Landing/PlatformsMarquee";
 import Trending from "../component/Landing/Trending";
 import AIFeatureSection from "../component/Landing/AIFeatureSection";
 import Reasons from "../component/Landing/Reasons";
@@ -12,7 +11,6 @@ const Home = () => {
     <div className="bg-[#0d0d0e] text-white min-h-screen flex flex-col w-full overflow-x-hidden">
       <Navbar />
       <Hero />
-      <PlatformsMarquee />
       <Trending />
       <AIFeatureSection />
       <Reasons />

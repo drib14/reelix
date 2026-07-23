@@ -40,7 +40,7 @@ const MoviePlayerModal = ({
   const tmdbId = movie?._id || movie?.id;
   const isTvSeries = movie?.media_type === "tv" || !!movie?.number_of_seasons || season > 1 || episode > 1;
 
-  // Build 6 HD Streaming Server Sources
+  // Build 8 HD Streaming Server Sources
   const availableSources = [
     {
       id: "direct",
@@ -87,7 +87,28 @@ const MoviePlayerModal = ({
           name: "2Embed Premium",
           type: "iframe",
           url: `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`,
-          badge: "Global Backup",
+          badge: "Global Mirror",
+        },
+        {
+          id: "server6",
+          name: "EmbedSu Global",
+          type: "iframe",
+          url: `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`,
+          badge: "Fast Multi-Lang",
+        },
+        {
+          id: "server7",
+          name: "VidSrc.cc",
+          type: "iframe",
+          url: `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`,
+          badge: "Ultra Mirror",
+        },
+        {
+          id: "server8",
+          name: "MultiEmbed HD",
+          type: "iframe",
+          url: `https://api.multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
+          badge: "Worldwide Server",
         }
       );
     } else {
@@ -125,7 +146,28 @@ const MoviePlayerModal = ({
           name: "2Embed Premium",
           type: "iframe",
           url: `https://www.2embed.cc/embedmovie/${tmdbId}`,
-          badge: "Global Backup",
+          badge: "Global Mirror",
+        },
+        {
+          id: "server6",
+          name: "EmbedSu Global",
+          type: "iframe",
+          url: `https://embed.su/embed/movie/${tmdbId}`,
+          badge: "Fast Multi-Lang",
+        },
+        {
+          id: "server7",
+          name: "VidSrc.cc",
+          type: "iframe",
+          url: `https://vidsrc.cc/v2/embed/movie/${tmdbId}`,
+          badge: "Ultra Mirror",
+        },
+        {
+          id: "server8",
+          name: "MultiEmbed HD",
+          type: "iframe",
+          url: `https://api.multiembed.mov/?video_id=${tmdbId}&tmdb=1`,
+          badge: "Worldwide Server",
         }
       );
     }

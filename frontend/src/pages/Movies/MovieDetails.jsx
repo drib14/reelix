@@ -13,6 +13,7 @@ import {
   FaSearch,
   FaListOl,
 } from "react-icons/fa";
+import { getCountryFlag } from "../../utils/countryUtils";
 
 import {
   useGetSpecificMovieQuery,
@@ -170,6 +171,8 @@ const MovieDetails = () => {
     });
   };
 
+  const originCountry = movie.originCountry || (movie.origin_country && movie.origin_country[0]) || "";
+
   return (
     <>
       {/* ================= HERO ================= */}
@@ -235,8 +238,9 @@ const MovieDetails = () => {
                 )}
                 {movie.runtime && <span>• {movie.runtime} min</span>}
                 {movie.language && (
-                  <span className="uppercase text-xs bg-zinc-800 px-2.5 py-1 rounded-md text-gray-300 border border-zinc-700">
-                    {movie.language}
+                  <span className="uppercase text-xs bg-zinc-800 px-2.5 py-1 rounded-md text-gray-300 border border-zinc-700 flex items-center gap-1">
+                    {originCountry && <span>{getCountryFlag(originCountry)}</span>}
+                    <span>{movie.language}</span>
                   </span>
                 )}
               </div>
@@ -321,9 +325,10 @@ const MovieDetails = () => {
                   </p>
                 </div>
                 <div className="bg-zinc-900/80 border border-zinc-800 p-4 rounded-xl">
-                  <p className="text-gray-400 text-xs font-medium">Language</p>
-                  <p className="text-white font-bold text-sm mt-1 uppercase">
-                    {movie.language || "EN"}
+                  <p className="text-gray-400 text-xs font-medium">Country / Lang</p>
+                  <p className="text-white font-bold text-sm mt-1 uppercase flex items-center gap-1.5">
+                    {originCountry && <span>{getCountryFlag(originCountry)}</span>}
+                    <span>{originCountry || movie.language || "EN"}</span>
                   </p>
                 </div>
                 <div className="bg-zinc-900/80 border border-zinc-800 p-4 rounded-xl">
@@ -335,7 +340,7 @@ const MovieDetails = () => {
                 <div className="bg-zinc-900/80 border border-zinc-800 p-4 rounded-xl">
                   <p className="text-gray-400 text-xs font-medium">Servers</p>
                   <p className="text-emerald-400 font-bold text-sm mt-1">
-                    6 HD Servers
+                    8 HD Global Servers
                   </p>
                 </div>
               </div>

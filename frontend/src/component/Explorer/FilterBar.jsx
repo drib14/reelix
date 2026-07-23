@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   FaUndo,
   FaFilter,
@@ -10,7 +10,8 @@ import {
   FaTimes,
   FaCheck,
 } from "react-icons/fa";
-import { useGetPlatformsQuery } from "../../redux/api/movies";
+import { useGetPlatformsQuery, useGetCountriesQuery } from "../../redux/api/movies";
+import { getCountryFlag, GLOBAL_COUNTRIES } from "../../utils/countryUtils";
 
 // Built-in Brand Logo Renderers for Top Platforms
 const PlatformBrandLogo = ({ name, logoPath }) => {
@@ -116,19 +117,6 @@ const STATIC_TOP_PROVIDERS = [
   { provider_id: "384", provider_name: "Peacock" },
 ];
 
-const COUNTRIES_LIST = [
-  { code: "US", name: "United States (US)" },
-  { code: "", name: "All Countries" },
-  { code: "PH", name: "Philippines (PH)" },
-  { code: "KR", name: "South Korea (KR)" },
-  { code: "JP", name: "Japan (JP)" },
-  { code: "GB", name: "United Kingdom (GB)" },
-  { code: "FR", name: "France (FR)" },
-  { code: "IN", name: "India (IN)" },
-  { code: "ES", name: "Spain (ES)" },
-  { code: "TH", name: "Thailand (TH)" },
-];
-
 const FilterBar = ({
   mediaType = "movie",
   setMediaType,
@@ -149,11 +137,34 @@ const FilterBar = ({
 }) => {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
-  // Fetch watch providers dynamically from TMDB via backend
+  // Fetch watch providers & countries dynamically from TMDB via backend
   const { data: apiPlatforms = [] } = useGetPlatformsQuery({
     type: mediaType,
     region: country || "US",
   });
+
+  const { data: apiCountries = [] } = useGetCountriesQuery();
+
+  const formattedCountriesList = useMemo(() => {
+    if (apiCountries && apiCountries.length > 0) {
+      const list = [{ code: "", flag: "🌐", name: "🌐 All Countries / Worldwide" }];
+      apiCountries.forEach((c) => {
+        const code = c.iso_3166_1;
+        const flag = getCountryFlag(code);
+        list.push({
+          code,
+          flag,
+          name: `${flag} ${c.english_name || code} (${code})`,
+        });
+      });
+      return list;
+    }
+    return GLOBAL_COUNTRIES.map((c) => ({
+      code: c.code,
+      flag: getCountryFlag(c.code),
+      name: `${getCountryFlag(c.code)} ${c.name}${c.code ? ` (${c.code})` : ""}`,
+    }));
+  }, [apiCountries]);
 
   const providersToDisplay =
     apiPlatforms && apiPlatforms.length > 0
@@ -243,8 +254,10 @@ const FilterBar = ({
           <div className="flex items-center justify-between mb-3">
             <span className="text-gray-300 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
               <span>Streaming Platforms</span>
-              <span className="text-[11px] text-red-500 font-semibold bg-red-950/60 border border-red-500/30 px-2 py-0.5 rounded-md">
-                Region: {country || "US"}
+              <span className="text-[11px] text-red-500 font-semibold bg-red-950/60 border border-red-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
+                <span>Region:</span>
+                <span>{getCountryFlag(country || "US")}</span>
+                <span>{country || "US"}</span>
               </span>
             </span>
             {platform && (
@@ -309,7 +322,7 @@ const FilterBar = ({
               onChange={(e) => setCountry(e.target.value)}
               className="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-white text-xs outline-none focus:border-red-600 font-medium cursor-pointer"
             >
-              {COUNTRIES_LIST.map((c) => (
+              {formattedCountriesList.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.name}
                 </option>
@@ -517,7 +530,7 @@ const FilterBar = ({
                   onChange={(e) => setCountry(e.target.value)}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm outline-none font-medium"
                 >
-                  {COUNTRIES_LIST.map((c) => (
+                  {formattedCountriesList.map((c) => (
                     <option key={c.code} value={c.code}>
                       {c.name}
                     </option>

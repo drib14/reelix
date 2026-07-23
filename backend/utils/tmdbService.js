@@ -197,11 +197,13 @@ export const discoverMovies = async ({
     oldest: isTv ? "first_air_date.asc" : "primary_release_date.asc",
   };
 
+  const effectiveRegion = country || region || "US";
+
   const params = {
     with_genres: genre || undefined,
     sort_by: sortMap[sort] || "popularity.desc",
     with_watch_providers: platform || undefined,
-    watch_region: platform ? region : undefined,
+    watch_region: platform ? effectiveRegion : undefined,
     with_origin_country: country || undefined,
     "vote_average.gte": rating ? parseFloat(rating) : undefined,
     page,

@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { FaPlay, FaStar, FaTv, FaFilm } from "react-icons/fa";
+import { getCountryFlag } from "../../utils/countryUtils";
 
 const MovieCard = ({ movie }) => {
   const isTv = movie.media_type === "tv";
+  const originCountryCode = movie.originCountry || (movie.origin_country && movie.origin_country[0]) || "";
 
   const getRatingBadge = (rating) => {
     if (!rating) return null;
@@ -37,6 +39,12 @@ const MovieCard = ({ movie }) => {
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10 pointer-events-none">
           {movie.rating ? getRatingBadge(movie.rating) : <div />}
           <div className="flex items-center gap-1 ml-auto">
+            {originCountryCode && (
+              <span className="bg-black/80 text-white text-[12px] px-1.5 py-0.5 rounded-md backdrop-blur-md border border-white/10 shadow" title={`Origin Country: ${originCountryCode}`}>
+                {getCountryFlag(originCountryCode)}
+              </span>
+            )}
+
             <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1 ${
               isTv
                 ? "bg-purple-600/90 text-white border-purple-400/40"

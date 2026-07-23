@@ -4,6 +4,7 @@ import Navbar from "../../component/Landing/Navbar";
 import HeroBanner from "../../component/Landing/HeroBanner";
 import MovieGrid from "./MovieGrid";
 import FilterBar from "../../component/Explorer/FilterBar";
+import { getCountryFlag } from "../../utils/countryUtils";
 
 import {
   useDiscoverMoviesQuery,
@@ -49,7 +50,7 @@ const AllMovies = () => {
     year,
     rating,
     sort,
-    region: "US",
+    region: country || "US",
     page,
   });
 
@@ -98,8 +99,13 @@ const AllMovies = () => {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
               {mediaType === "tv" ? "Discover TV Shows & Series" : "Discover Movies"}
             </h2>
-            <p className="text-gray-400 text-xs sm:text-sm mt-1">
-              Explore thousands of {mediaType === "tv" ? "TV series" : "movies"} available on streaming providers (Region: {country || "US"}).
+            <p className="text-gray-400 text-xs sm:text-sm mt-1 flex items-center gap-1.5 flex-wrap">
+              <span>Explore thousands of {mediaType === "tv" ? "TV series" : "movies"} available on streaming providers</span>
+              <span className="bg-red-950/60 border border-red-500/30 text-red-400 font-bold px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1">
+                <span>Region:</span>
+                <span>{getCountryFlag(country || "US")}</span>
+                <span>{country || "US"}</span>
+              </span>
             </p>
           </div>
 
