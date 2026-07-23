@@ -9,7 +9,8 @@
     "dev": "nodemon backend/index.js",
     "fullstack": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "nodemon backend/index.js",
-    "frontend": "cd frontend && npm run dev"
+    "frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm install && npm run build"
   },
   "keywords": [],
   "author": "",

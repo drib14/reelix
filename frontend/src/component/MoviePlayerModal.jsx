@@ -16,17 +16,31 @@ import {
   FaSpinner,
   FaDesktop,
   FaCheck,
+  FaStepForward,
+  FaStepBackward,
+  FaTv,
 } from "react-icons/fa";
 
-const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }) => {
+const MoviePlayerModal = ({
+  isOpen,
+  onClose,
+  title,
+  videoUrl,
+  isTrailer,
+  movie,
+  season = 1,
+  episode = 1,
+  onSelectEpisode,
+  totalEpisodes = 1,
+}) => {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
 
-  // Determine active media / TMDB ID
   const tmdbId = movie?._id || movie?.id;
+  const isTvSeries = movie?.media_type === "tv" || !!movie?.number_of_seasons || season > 1 || episode > 1;
 
-  // Stream Sources Configuration
+  // Build 6 HD Streaming Server Sources
   const availableSources = [
     {
       id: "direct",
@@ -38,29 +52,83 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
   ];
 
   if (tmdbId) {
-    availableSources.push(
-      {
-        id: "server1",
-        name: "VidSrc HD Server 1",
-        type: "iframe",
-        url: `https://vidsrc.to/embed/movie/${tmdbId}`,
-        badge: "Ultra HD",
-      },
-      {
-        id: "server2",
-        name: "AutoEmbed Server 2",
-        type: "iframe",
-        url: `https://player.autoembed.cc/embed/movie/${tmdbId}`,
-        badge: "Fast Stream",
-      },
-      {
-        id: "server3",
-        name: "VidSrc.me Server 3",
-        type: "iframe",
-        url: `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`,
-        badge: "Multi-Sub",
-      }
-    );
+    if (isTvSeries) {
+      availableSources.push(
+        {
+          id: "server1",
+          name: "VidSrc PRO HD",
+          type: "iframe",
+          url: `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,
+          badge: "4K / 1080p",
+        },
+        {
+          id: "server2",
+          name: "AutoEmbed Ultra",
+          type: "iframe",
+          url: `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`,
+          badge: "Fast Stream",
+        },
+        {
+          id: "server3",
+          name: "VidSrc.me",
+          type: "iframe",
+          url: `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,
+          badge: "Multi-Sub",
+        },
+        {
+          id: "server4",
+          name: "VidSrc.icu",
+          type: "iframe",
+          url: `https://vidsrc.icu/embed/tv/${tmdbId}/${season}/${episode}`,
+          badge: "Dual Audio",
+        },
+        {
+          id: "server5",
+          name: "2Embed Premium",
+          type: "iframe",
+          url: `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`,
+          badge: "Global Backup",
+        }
+      );
+    } else {
+      availableSources.push(
+        {
+          id: "server1",
+          name: "VidSrc PRO HD",
+          type: "iframe",
+          url: `https://vidsrc.to/embed/movie/${tmdbId}`,
+          badge: "4K / 1080p",
+        },
+        {
+          id: "server2",
+          name: "AutoEmbed Ultra",
+          type: "iframe",
+          url: `https://player.autoembed.cc/embed/movie/${tmdbId}`,
+          badge: "Fast Stream",
+        },
+        {
+          id: "server3",
+          name: "VidSrc.me",
+          type: "iframe",
+          url: `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`,
+          badge: "Multi-Sub",
+        },
+        {
+          id: "server4",
+          name: "VidSrc.icu",
+          type: "iframe",
+          url: `https://vidsrc.icu/embed/movie/${tmdbId}`,
+          badge: "Dual Audio",
+        },
+        {
+          id: "server5",
+          name: "2Embed Premium",
+          type: "iframe",
+          url: `https://www.2embed.cc/embedmovie/${tmdbId}`,
+          badge: "Global Backup",
+        }
+      );
+    }
   }
 
   if (movie?.trailer || (isTrailer && videoUrl)) {
@@ -74,8 +142,13 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
     });
   }
 
-  // Player State
-  const [activeSourceId, setActiveSourceId] = useState(isTrailer ? "trailer" : "direct");
+  const defaultSource = isTrailer ? "trailer" : tmdbId ? "server1" : "direct";
+  const [activeSourceId, setActiveSourceId] = useState(defaultSource);
+
+  useEffect(() => {
+    setActiveSourceId(isTrailer ? "trailer" : tmdbId ? "server1" : "direct");
+  }, [tmdbId, season, episode, isTrailer]);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -93,7 +166,19 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
 
   const currentSource = availableSources.find((s) => s.id === activeSourceId) || availableSources[0];
 
-  // Auto-hide controls logic
+  // Auto-save watched progress timestamp to localStorage
+  useEffect(() => {
+    if (currentTime > 5 && tmdbId) {
+      const storageKey = `reelix_progress_${tmdbId}_s${season}_e${episode}`;
+      localStorage.setItem(storageKey, JSON.stringify({
+        time: currentTime,
+        duration,
+        percent: duration ? (currentTime / duration) * 100 : 0,
+        updatedAt: Date.now(),
+      }));
+    }
+  }, [currentTime, tmdbId, season, episode, duration]);
+
   const handleMouseMove = useCallback(() => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -109,7 +194,6 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
-      // Avoid triggering when user typing in an input
       if (["input", "textarea"].includes(document.activeElement?.tagName?.toLowerCase())) return;
 
       if (e.code === "Space" || e.code === "KeyK") {
@@ -133,6 +217,9 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
       } else if (e.code === "KeyM") {
         e.preventDefault();
         toggleMute();
+      } else if (e.code === "KeyN" && isTvSeries && onSelectEpisode) {
+        e.preventDefault();
+        onSelectEpisode(season, episode + 1);
       } else if (e.code === "Escape") {
         if (!isFullscreen) onClose();
       }
@@ -140,16 +227,20 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, volume, isPlaying, isFullscreen]);
+  }, [isOpen, volume, isPlaying, isFullscreen, isTvSeries, season, episode]);
 
-  // Handle HTML5 Video Events
   useEffect(() => {
     const video = videoRef.current;
     if (!video || currentSource.type !== "video") return;
 
     const onTimeUpdate = () => setCurrentTime(video.currentTime);
     const onLoadedMetadata = () => setDuration(video.duration);
-    const onEnded = () => setIsPlaying(false);
+    const onEnded = () => {
+      setIsPlaying(false);
+      if (isTvSeries && onSelectEpisode) {
+        onSelectEpisode(season, episode + 1);
+      }
+    };
     const onWaiting = () => setIsBuffering(true);
     const onPlaying = () => setIsBuffering(false);
     const onProgress = () => {
@@ -174,9 +265,8 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
       video.removeEventListener("playing", onPlaying);
       video.removeEventListener("progress", onProgress);
     };
-  }, [currentSource]);
+  }, [currentSource, isTvSeries, season, episode]);
 
-  // Sync fullscreen change
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -187,7 +277,6 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
 
   if (!isOpen) return null;
 
-  // Video playback helper actions
   const togglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -261,18 +350,16 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
     }
   };
 
-  const togglePiP = async () => {
-    if (!videoRef.current) return;
-    try {
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-      } else {
-        await videoRef.current.requestPictureInPicture();
-      }
-    } catch (err) {
-      console.error("Picture-in-picture error:", err);
+  let youtubeEmbedUrl = "";
+  if (currentSource.type === "youtube") {
+    let ytId = "";
+    if (currentSource.url.includes("v=")) {
+      ytId = currentSource.url.split("v=")[1]?.split("&")[0];
+    } else if (currentSource.url.includes("youtu.be/")) {
+      ytId = currentSource.url.split("youtu.be/")[1]?.split("?")[0];
     }
-  };
+    youtubeEmbedUrl = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1`;
+  }
 
   const formatTime = (secs) => {
     if (isNaN(secs) || secs < 0) return "00:00";
@@ -285,18 +372,6 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
     }
     return `${minutes < 10 ? "0" : ""}${minutes}:${remainingSecs < 10 ? "0" : ""}${remainingSecs}`;
   };
-
-  // Helper for Youtube ID
-  let youtubeEmbedUrl = "";
-  if (currentSource.type === "youtube") {
-    let ytId = "";
-    if (currentSource.url.includes("v=")) {
-      ytId = currentSource.url.split("v=")[1]?.split("&")[0];
-    } else if (currentSource.url.includes("youtu.be/")) {
-      ytId = currentSource.url.split("youtu.be/")[1]?.split("?")[0];
-    }
-    youtubeEmbedUrl = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1`;
-  }
 
   return (
     <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[9999] flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
@@ -314,11 +389,16 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-500 shadow-lg">
-              <FaFilm className="text-lg animate-pulse" />
+              {isTvSeries ? <FaTv className="text-lg" /> : <FaFilm className="text-lg" />}
             </div>
             <div>
               <h3 className="text-white font-bold text-base sm:text-xl line-clamp-1 drop-shadow-md">
-                {title || movie?.name || "Movie Stream"}
+                {title || movie?.name || "Streaming"}
+                {isTvSeries && (
+                  <span className="text-red-500 text-sm font-extrabold ml-2 bg-red-950/60 border border-red-500/30 px-2 py-0.5 rounded-md">
+                    S{season}:E{episode}
+                  </span>
+                )}
               </h3>
               <div className="flex items-center gap-2 text-xs text-gray-300 mt-0.5">
                 <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
@@ -330,9 +410,32 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
             </div>
           </div>
 
-          {/* Top Controls: Server Picker & Close Button */}
-          <div className="flex items-center gap-3">
-            {/* Server Selector Button */}
+          {/* Controls Right Group */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* TV Series Next/Prev Episode Quick Controls */}
+            {isTvSeries && onSelectEpisode && (
+              <div className="flex items-center gap-1 bg-zinc-900/90 border border-zinc-800 rounded-xl p-1 backdrop-blur-md">
+                <button
+                  disabled={episode <= 1}
+                  onClick={() => onSelectEpisode(season, Math.max(1, episode - 1))}
+                  className="px-2.5 py-1.5 text-xs text-gray-300 hover:text-white disabled:opacity-30 disabled:hover:text-gray-300 flex items-center gap-1 rounded-lg hover:bg-zinc-800 transition"
+                  title="Previous Episode"
+                >
+                  <FaStepBackward className="text-[10px]" />
+                  <span className="hidden sm:inline">Prev Ep</span>
+                </button>
+                <button
+                  onClick={() => onSelectEpisode(season, episode + 1)}
+                  className="px-2.5 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white font-bold flex items-center gap-1 rounded-lg transition shadow"
+                  title="Next Episode (N)"
+                >
+                  <span className="hidden sm:inline">Next Ep</span>
+                  <FaStepForward className="text-[10px]" />
+                </button>
+              </div>
+            )}
+
+            {/* Server Selector Menu Button */}
             {availableSources.length > 1 && (
               <div className="relative">
                 <button
@@ -340,19 +443,20 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                     setShowServerMenu(!showServerMenu);
                     setShowSpeedMenu(false);
                   }}
-                  className="bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl flex items-center gap-2 backdrop-blur-md transition shadow-md"
+                  className="bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl flex items-center gap-2 backdrop-blur-md transition shadow-md"
                 >
                   <FaServer className="text-red-500" />
-                  <span>{currentSource.name}</span>
+                  <span className="hidden sm:inline">{currentSource.name}</span>
+                  <span className="sm:hidden font-bold">{currentSource.id}</span>
                 </button>
 
                 {/* Server Menu Popover */}
                 {showServerMenu && (
                   <div className="absolute right-0 mt-2 w-64 bg-zinc-900/95 border border-zinc-700/80 rounded-2xl p-2 shadow-2xl backdrop-blur-xl z-50 animate-in fade-in duration-200">
                     <p className="text-[10px] uppercase font-bold text-gray-400 px-3 py-1.5 border-b border-zinc-800">
-                      Select Stream Server
+                      Select Server ({availableSources.length} Available)
                     </p>
-                    <div className="mt-1 flex flex-col gap-1">
+                    <div className="mt-1 flex flex-col gap-1 max-h-60 overflow-y-auto">
                       {availableSources.map((src) => (
                         <button
                           key={src.id}
@@ -363,14 +467,14 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                           }}
                           className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition ${
                             activeSourceId === src.id
-                              ? "bg-red-600 text-white"
+                              ? "bg-red-600 text-white font-bold"
                               : "text-gray-300 hover:bg-zinc-800 hover:text-white"
                           }`}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 truncate pr-2">
                             <span>{src.name}</span>
                           </div>
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-black/30 border border-white/10 font-bold">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-black/40 border border-white/10 font-bold whitespace-nowrap">
                             {src.badge}
                           </span>
                         </button>
@@ -381,11 +485,11 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
               </div>
             )}
 
-            {/* Close Modal Button */}
+            {/* Close Button */}
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-2xl bg-zinc-900/90 hover:bg-red-600 border border-zinc-700/80 text-white flex items-center justify-center transition hover:rotate-90 duration-300 shadow-md backdrop-blur-md"
-              aria-label="Close modal"
+              aria-label="Close player"
             >
               <FaTimes className="text-lg" />
             </button>
@@ -398,7 +502,7 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
           onDoubleClick={toggleFullscreen}
           className="relative flex-1 w-full h-full bg-black flex items-center justify-center overflow-hidden cursor-pointer"
         >
-          {/* 1. Standard Custom HTML5 Video Player */}
+          {/* 1. Direct HTML5 Video */}
           {currentSource.type === "video" && (
             <>
               <video
@@ -408,14 +512,12 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                 className="w-full h-full object-contain"
               />
 
-              {/* Buffering Spinner Overlay */}
               {isBuffering && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10 pointer-events-none">
                   <FaSpinner className="text-red-600 text-5xl animate-spin" />
                 </div>
               )}
 
-              {/* Big Center Play/Pause Indicator Overlay */}
               {!isPlaying && !isBuffering && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 pointer-events-none">
                   <div className="w-20 h-20 rounded-full bg-red-600/90 border-2 border-white/20 text-white flex items-center justify-center pl-1 shadow-2xl transform scale-100 animate-pulse">
@@ -426,12 +528,12 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
             </>
           )}
 
-          {/* 2. Full Movie Embed Stream (IFrame) */}
+          {/* 2. Full Movie / TV Embed Stream (IFrame) */}
           {currentSource.type === "iframe" && (
             <iframe
               className="w-full h-full border-0"
               src={currentSource.url}
-              title={title || "Movie Player Stream"}
+              title={title || "Stream Player"}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               allowFullScreen
             />
@@ -456,9 +558,8 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
               showControls ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
-            {/* Timeline / Seekbar */}
+            {/* Timeline */}
             <div className="relative group/timeline w-full flex items-center h-4 cursor-pointer">
-              {/* Hover Timestamp Preview Tooltip */}
               {hoverTime !== null && (
                 <div
                   style={{ left: `${hoverPosition}px` }}
@@ -468,21 +569,17 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                 </div>
               )}
 
-              {/* Progress Slider Track */}
               <div className="w-full h-1.5 group-hover/timeline:h-2.5 bg-zinc-800/80 rounded-full overflow-hidden relative transition-all duration-200">
-                {/* Pre-buffered track */}
                 <div
                   style={{ width: `${bufferedPercent}%` }}
                   className="absolute top-0 bottom-0 left-0 bg-white/20 rounded-full transition-all"
                 ></div>
-                {/* Active Progress Fill */}
                 <div
                   style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
                   className="absolute top-0 bottom-0 left-0 bg-red-600 rounded-full shadow-[0_0_12px_rgba(220,38,38,0.8)]"
                 ></div>
               </div>
 
-              {/* Native Invisible Range Input for Smooth Scrubbing */}
               <input
                 type="range"
                 min="0"
@@ -498,9 +595,7 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
 
             {/* Controls Button Row */}
             <div className="flex items-center justify-between text-white">
-              {/* Left Controls Group */}
               <div className="flex items-center gap-3 sm:gap-5">
-                {/* Play / Pause Toggle */}
                 <button
                   onClick={togglePlay}
                   className="w-10 h-10 rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition shadow-lg transform hover:scale-105"
@@ -509,30 +604,26 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                   {isPlaying ? <FaPause className="text-base" /> : <FaPlay className="text-base pl-0.5" />}
                 </button>
 
-                {/* Quick Rewind -10s */}
                 <button
                   onClick={() => skipTime(-10)}
                   className="p-2 text-gray-300 hover:text-white transition"
-                  title="Rewind 10s (Left Arrow)"
+                  title="Rewind 10s"
                 >
                   <FaUndo className="text-sm sm:text-base" />
                 </button>
 
-                {/* Quick Forward +10s */}
                 <button
                   onClick={() => skipTime(10)}
                   className="p-2 text-gray-300 hover:text-white transition"
-                  title="Forward 10s (Right Arrow)"
+                  title="Forward 10s"
                 >
                   <FaRedo className="text-sm sm:text-base" />
                 </button>
 
-                {/* Volume & Mute Controls */}
                 <div className="flex items-center gap-2 group/volume">
                   <button
                     onClick={toggleMute}
                     className="p-2 text-gray-300 hover:text-white transition"
-                    title="Mute / Unmute (M)"
                   >
                     {isMuted || volume === 0 ? (
                       <FaVolumeMute className="text-red-500 text-lg" />
@@ -554,7 +645,6 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                   />
                 </div>
 
-                {/* Time Display */}
                 <div className="text-xs sm:text-sm font-semibold text-gray-300 tracking-wider">
                   <span>{formatTime(currentTime)}</span>
                   <span className="text-gray-500 mx-1">/</span>
@@ -562,9 +652,7 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                 </div>
               </div>
 
-              {/* Right Controls Group */}
               <div className="flex items-center gap-2 sm:gap-4">
-                {/* Playback Speed Popover */}
                 <div className="relative">
                   <button
                     onClick={() => {
@@ -597,7 +685,6 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                   )}
                 </div>
 
-                {/* Picture in Picture */}
                 <button
                   onClick={togglePiP}
                   className="hidden sm:block p-2 text-gray-300 hover:text-white transition"
@@ -606,11 +693,10 @@ const MoviePlayerModal = ({ isOpen, onClose, title, videoUrl, isTrailer, movie }
                   <FaDesktop className="text-base" />
                 </button>
 
-                {/* Fullscreen Toggle */}
                 <button
                   onClick={toggleFullscreen}
                   className="p-2 text-gray-300 hover:text-white transition"
-                  title="Toggle Fullscreen (F)"
+                  title="Toggle Fullscreen"
                 >
                   {isFullscreen ? (
                     <FaCompress className="text-lg" />

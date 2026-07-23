@@ -1,13 +1,10 @@
+import { BASE_URL } from "../constants";
+
 const getApiUrl = () => {
-  if (import.meta.env.VITE_AI_API_URL) return import.meta.env.VITE_AI_API_URL;
-  let baseUrl = (import.meta.env.VITE_BASE_URL || "https://reelix-api.onrender.com").trim();
-  if (!baseUrl.startsWith("http://") && !baseUrl.startsWith("https://")) {
-    baseUrl = `https://${baseUrl}`;
+  if (import.meta.env.VITE_AI_API_URL && import.meta.env.VITE_AI_API_URL.trim() !== "") {
+    return import.meta.env.VITE_AI_API_URL.trim();
   }
-  if (!baseUrl.includes(".")) {
-    baseUrl = `${baseUrl}.onrender.com`;
-  }
-  return `${baseUrl.replace(/\/$/, "")}/api/v1/ai/chat`;
+  return `${BASE_URL}/api/v1/ai/chat`;
 };
 
 // ======================================

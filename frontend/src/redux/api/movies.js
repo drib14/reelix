@@ -91,31 +91,55 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
     }),
 
     // =========================
-    // TMDB GENRES
+    // TMDB GENRES & METADATA
     // =========================
 
     getGenres: builder.query({
       query: () => `${MOVIE_URL}/genres`,
     }),
 
+    getTvGenres: builder.query({
+      query: () => `${MOVIE_URL}/tv-genres`,
+    }),
+
+    getPlatforms: builder.query({
+      query: ({ type = "movie", region = "US" } = {}) => `${MOVIE_URL}/platforms?type=${type}&region=${region}`,
+    }),
+
+    getCountries: builder.query({
+      query: () => `${MOVIE_URL}/countries`,
+    }),
+
+    getTvDetails: builder.query({
+      query: (id) => `${MOVIE_URL}/tv/${id}`,
+    }),
+
     // =========================
-    // DISCOVER MOVIES
+    // DISCOVER MOVIES & TV
     // =========================
 
     discoverMovies: builder.query({
       query: ({
+        type = "movie",
         genre = "",
-        sort = "popularity",
+        platform = "",
+        country = "",
         year = "",
-        language = "",
+        rating = "",
+        sort = "popularity",
+        region = "US",
         page = 1,
       }) => ({
         url: `${MOVIE_URL}/discover`,
         params: {
+          type,
           genre,
-          sort,
+          platform,
+          country,
           year,
-          language,
+          rating,
+          sort,
+          region,
           page,
         },
       }),
@@ -126,7 +150,13 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
     // =========================
 
     searchMovies: builder.query({
-      query: (keyword) => `${MOVIE_URL}/search/${keyword}`,
+      query: (args) => {
+        if (typeof args === "string") {
+          return `${MOVIE_URL}/search/${encodeURIComponent(args)}?type=all`;
+        }
+        const { keyword = "", type = "all" } = args || {};
+        return `${MOVIE_URL}/search/${encodeURIComponent(keyword)}?type=${type}`;
+      },
     }),
   }),
 });
@@ -138,6 +168,7 @@ export const {
   useAddMovieReviewMutation,
   useDeleteCommentMutation,
   useGetSpecificMovieQuery,
+  useGetTvDetailsQuery,
   useUploadImageMutation,
   useDeleteMovieMutation,
 
@@ -151,6 +182,9 @@ export const {
   useGetUpcomingMoviesQuery,
 
   useGetGenresQuery,
+  useGetTvGenresQuery,
+  useGetPlatformsQuery,
+  useGetCountriesQuery,
   useDiscoverMoviesQuery,
 
   useSearchMoviesQuery,

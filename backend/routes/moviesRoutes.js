@@ -18,6 +18,10 @@ import {
   getTopRated,
   getUpcoming,
   getMovieGenres,
+  getTvGenresController,
+  getPlatformsController,
+  getCountriesController,
+  getTvDetailsController,
   discoverMoviesController,
   searchMovies,
 } from "../controllers/movieController.js";
@@ -31,6 +35,8 @@ import checkId from "../middlewares/checkId.js";
 router.get("/all-movies", getAllMovies);
 
 router.get("/specific-movie/:id", getSpecificMovie);
+
+router.get("/tv/:id", getTvDetailsController);
 
 router.get("/new-movies", getNewMovies);
 
@@ -48,11 +54,17 @@ router.get("/top-rated", getTopRated);
 
 router.get("/upcoming", getUpcoming);
 
-// ================= TMDB GENRES =================
+// ================= TMDB GENRES & METADATA =================
 
 router.get("/genres", getMovieGenres);
 
-// ================= DISCOVER MOVIES =================
+router.get("/tv-genres", getTvGenresController);
+
+router.get("/platforms", getPlatformsController);
+
+router.get("/countries", getCountriesController);
+
+// ================= DISCOVER MEDIA =================
 
 router.get("/discover", discoverMoviesController);
 

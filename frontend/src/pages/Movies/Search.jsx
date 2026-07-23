@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { FaSearch, FaTimes, FaFilm, FaFire, FaCompass, FaArrowLeft } from "react-icons/fa";
+import { FaSearch, FaTimes, FaFilm, FaTv, FaFire, FaCompass, FaArrowLeft } from "react-icons/fa";
 
 import Navbar from "../../component/Landing/Navbar";
-import MovieCard from "./MovieCard";
 import MovieGrid from "./MovieGrid";
 import Footer from "../../component/Landing/Footer";
 
@@ -30,9 +29,9 @@ const Search = () => {
   const navigate = useNavigate();
 
   const [inputQuery, setInputQuery] = useState(urlKeyword || "");
+  const [searchType, setSearchType] = useState("all"); // "all" | "movie" | "tv"
   const activeKeyword = urlKeyword || "";
 
-  // Update input when URL param changes
   useEffect(() => {
     setInputQuery(urlKeyword || "");
   }, [urlKeyword]);
@@ -42,9 +41,10 @@ const Search = () => {
     isLoading,
     isFetching,
     error,
-  } = useSearchMoviesQuery(activeKeyword, {
-    skip: !activeKeyword.trim(),
-  });
+  } = useSearchMoviesQuery(
+    { keyword: activeKeyword, type: searchType },
+    { skip: !activeKeyword.trim() }
+  );
 
   const { data: trendingMovies = [] } = useGetTrendingMoviesQuery();
 
@@ -66,12 +66,11 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#141414] text-white flex flex-col">
-      {/* Main Netflix Navigation */}
+    <div className="min-h-screen bg-[#141414] text-white flex flex-col w-full">
       <Navbar />
 
       {/* Hero Search Section */}
-      <div className="pt-28 pb-10 px-4 sm:px-8 max-w-7xl mx-auto w-full">
+      <div className="pt-28 pb-10 px-4 sm:px-8 lg:px-12 xl:px-16 w-full">
         {/* Back Link */}
         <Link
           to="/movies"
@@ -82,30 +81,53 @@ const Search = () => {
         </Link>
 
         {/* Big Search Header Box */}
-        <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl w-full">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="max-w-2xl">
               <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight flex items-center gap-3">
                 <FaSearch className="text-red-600 text-2xl sm:text-4xl" />
-                <span>Search Movies</span>
+                <span>Search Catalog</span>
               </h1>
               <p className="text-gray-400 text-sm sm:text-base mt-2 leading-relaxed">
-                Explore titles, actors, directors, or genres across our high-definition catalog.
+                Search movies, TV series, actors, directors, or genres across our entire streaming catalog.
               </p>
             </div>
 
-            {/* Total Results Counter Badge */}
-            {activeKeyword && !isLoading && (
-              <div className="bg-red-950/40 border border-red-500/30 px-5 py-3 rounded-2xl flex items-center gap-3">
-                <FaFilm className="text-red-500" />
-                <div>
-                  <p className="text-xs text-red-300 font-medium">Found</p>
-                  <p className="text-lg font-bold text-white">
-                    {movies?.length || 0} {movies?.length === 1 ? "Movie" : "Movies"}
-                  </p>
-                </div>
-              </div>
-            )}
+            {/* Content Type Filter Tabs (All vs Movies vs TV Shows) */}
+            <div className="bg-zinc-950 p-1.5 rounded-2xl border border-zinc-800 flex items-center gap-1.5 w-full lg:w-auto">
+              <button
+                onClick={() => setSearchType("all")}
+                className={`flex-1 lg:flex-none px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 ${
+                  searchType === "all"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <span>All Content</span>
+              </button>
+              <button
+                onClick={() => setSearchType("movie")}
+                className={`flex-1 lg:flex-none px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 ${
+                  searchType === "movie"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <FaFilm />
+                <span>Movies</span>
+              </button>
+              <button
+                onClick={() => setSearchType("tv")}
+                className={`flex-1 lg:flex-none px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 ${
+                  searchType === "tv"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/30"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <FaTv />
+                <span>TV Series</span>
+              </button>
+            </div>
           </div>
 
           {/* Interactive Search Input Form */}
@@ -114,12 +136,12 @@ const Search = () => {
               <FaSearch className="absolute left-5 text-gray-400 text-lg pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search movies by title, genre, actor..."
+                placeholder="Search by title, actor, director, genre..."
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
                 className="w-full bg-zinc-950/90 border-2 border-zinc-700/80 focus:border-red-600 text-white text-base sm:text-lg pl-14 pr-32 py-4 rounded-2xl outline-none transition-all shadow-inner placeholder-gray-500"
               />
-              
+
               <div className="absolute right-3 flex items-center gap-2">
                 {inputQuery && (
                   <button
@@ -167,13 +189,14 @@ const Search = () => {
       </div>
 
       {/* Main Results Container */}
-      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-8 w-full pb-20">
+      <div className="flex-1 w-full px-4 sm:px-8 lg:px-12 xl:px-16 pb-20">
         {/* Active Query Headline */}
         {activeKeyword && (
           <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-8">
             <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
               <span>Results for</span>
               <span className="text-red-500">"{activeKeyword}"</span>
+              <span className="text-xs text-gray-400 font-normal">({movies?.length || 0} found)</span>
             </h2>
             <button
               onClick={clearSearch}
@@ -188,7 +211,7 @@ const Search = () => {
         {isLoading || isFetching ? (
           <div className="py-20 flex flex-col items-center justify-center">
             <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-400 text-sm font-medium mt-4">Searching movies...</p>
+            <p className="text-gray-400 text-sm font-medium mt-4">Searching movies & series...</p>
           </div>
         ) : error ? (
           /* 2. Error State */
@@ -200,16 +223,16 @@ const Search = () => {
           /* 3. Found Results Grid */
           <MovieGrid movies={movies} isLoading={false} />
         ) : (
-          /* 4. Netflix Style Empty Search State */
+          /* 4. Empty Search State */
           <div className="py-12 flex flex-col items-center text-center">
             <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-red-500 text-2xl mb-4 shadow-xl">
               <FaCompass />
             </div>
             <h3 className="text-white text-2xl font-bold">
-              {activeKeyword ? `No movies found for "${activeKeyword}"` : "Search for your favorite movies"}
+              {activeKeyword ? `No titles found for "${activeKeyword}"` : "Search for your favorite movies & TV shows"}
             </h3>
             <p className="text-gray-400 text-sm max-w-md mt-2">
-              Try searching with different keywords, genres, or check out our trending titles below.
+              Try searching with different keywords or check out our trending titles below.
             </p>
 
             {/* Suggested Trending Movies Grid */}
@@ -217,9 +240,9 @@ const Search = () => {
               <div className="w-full mt-14 text-left border-t border-zinc-800/80 pt-10">
                 <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                   <FaFire className="text-red-500" />
-                  <span>Trending Movies You Might Like</span>
+                  <span>Trending Titles You Might Like</span>
                 </h3>
-                <MovieGrid movies={trendingMovies.slice(0, 6)} isLoading={false} />
+                <MovieGrid movies={trendingMovies.slice(0, 7)} isLoading={false} />
               </div>
             )}
           </div>

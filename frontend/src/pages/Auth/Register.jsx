@@ -6,6 +6,7 @@ import Loader from "../../component/Loader";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useRegisterMutation } from "../../redux/api/users";
 import { toast } from "react-toastify";
+import { FaArrowLeft } from "react-icons/fa";
 import Logo from "../../component/Logo";
 
 const Register = () => {
@@ -59,8 +60,9 @@ const Register = () => {
 
       <div className="relative z-10 w-full flex justify-between items-center max-w-7xl mx-auto py-2">
         <Logo size="md" />
-        <Link to="/" className="text-sm font-semibold text-gray-300 hover:text-white transition">
-          ← Back to Home
+        <Link to="/" className="text-sm font-semibold text-gray-300 hover:text-white transition inline-flex items-center gap-2">
+          <FaArrowLeft className="text-xs" />
+          <span>Back to Home</span>
         </Link>
       </div>
 

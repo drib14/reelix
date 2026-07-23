@@ -1,14 +1,20 @@
 const formatBaseUrl = (url) => {
-  const fallback = "https://reelix-api.onrender.com";
-  let fullUrl = (url || fallback).trim();
+  // Check development vs production dynamically
+  const envUrl = url && url.trim() !== "" 
+    ? url 
+    : (import.meta.env.DEV ? "http://localhost:3000" : "https://reelix-api.onrender.com");
+
+  let fullUrl = envUrl.trim();
   if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
     fullUrl = `https://${fullUrl}`;
   }
-  // If internal service name was passed (e.g. 'https://reelix-api'), append .onrender.com
-  if (!fullUrl.includes(".")) {
+
+  // Only append .onrender.com if it's a render app handle (no dot and no localhost)
+  if (!fullUrl.includes(".") && !fullUrl.includes("localhost")) {
     fullUrl = `${fullUrl}.onrender.com`;
   }
-  return fullUrl;
+
+  return fullUrl.replace(/\/$/, "");
 };
 
 export const BASE_URL = formatBaseUrl(import.meta.env.VITE_BASE_URL);

@@ -95,17 +95,32 @@ app.use("/api/v1/upload", uploadRoutes);
 app.use("/api/v1/ai", aiRoutes);
 
 // ==============================
-// Static Uploads
+// Static Uploads & Production Client
 // ==============================
 
 const __dirname = path.resolve();
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "frontend", "dist")));
+
+  app.get("*", (req, res, next) => {
+    if (
+      req.path.startsWith("/api") ||
+      req.path.startsWith("/health") ||
+      req.path.startsWith("/uploads")
+    ) {
+      return next();
+    }
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
+
 // ==============================
 // Start Server
 // ==============================
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

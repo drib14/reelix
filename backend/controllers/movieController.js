@@ -5,8 +5,12 @@ import {
   getTopRatedMovies,
   getUpcomingMovies,
   getMovieDetails,
+  getTvDetails,
   searchTMDBMovies,
   getGenres,
+  getTvGenres,
+  getWatchProviders,
+  getCountries,
   discoverMovies,
 } from "../utils/tmdbService.js";
 
@@ -501,106 +505,184 @@ const getMovieGenres = async (req, res) => {
 };
 
 // =======================
-// Discover Movies
+// Platforms & Countries & Tv Genres
+// =======================
+
+const getPlatformsController = async (req, res) => {
+  try {
+    const { type = "movie", region = "US" } = req.query;
+    const providers = await getWatchProviders(type, region);
+    res.json(providers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getCountriesController = async (req, res) => {
+  try {
+    const countries = await getCountries();
+    res.json(countries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getTvGenresController = async (req, res) => {
+  try {
+    const genres = await getTvGenres();
+    res.json(genres);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getTvDetailsController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tv = await getTvDetails(id);
+
+    const trailer = tv.videos?.results?.find(
+      (video) => video.site === "YouTube" && (video.type === "Trailer" || video.type === "Teaser")
+    );
+
+    const formattedTv = {
+      _id: tv.id,
+      name: tv.name || tv.original_name,
+      media_type: "tv",
+      poster: tv.poster_path ? `https://image.tmdb.org/t/p/w500${tv.poster_path}` : "",
+      backdrop: tv.backdrop_path ? `https://image.tmdb.org/t/p/original${tv.backdrop_path}` : "",
+      overview: tv.overview,
+      releaseDate: tv.first_air_date,
+      year: tv.first_air_date ? parseInt(tv.first_air_date.split("-")[0]) : null,
+      rating: tv.vote_average,
+      genres: tv.genres || [],
+      trailer: trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : "",
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+      numberOfSeasons: tv.number_of_seasons,
+      numberOfEpisodes: tv.number_of_episodes,
+      seasons: tv.seasons || [],
+      cast: tv.credits?.cast?.slice(0, 10).map((actor) => ({
+        id: actor.id,
+        name: actor.name,
+        character: actor.character,
+        image: actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : "",
+      })) || [],
+      similar: tv.similar?.results?.slice(0, 10).map((item) => ({
+        id: item.id,
+        name: item.name || item.title,
+        media_type: "tv",
+        poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : "",
+      })) || [],
+      reviews: [],
+      numReviews: 0,
+    };
+
+    res.json(formattedTv);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// =======================
+// Discover Movies & TV Shows Multi-Criteria
 // =======================
 
 const discoverMoviesController = async (req, res) => {
   try {
     const {
+      type = "movie",
       genre,
-      sort,
+      platform,
+      country,
       year,
-      language,
+      rating,
+      sort,
       page,
+      region = "US",
     } = req.query;
 
-    const movies = await discoverMovies({
+    const mediaList = await discoverMovies({
+      type,
       genre,
-      sort,
+      platform,
+      country,
       year,
-      language,
+      rating,
+      sort,
       page,
+      region,
     });
 
-    const formattedMovies = movies.map((movie) => ({
-      _id: movie.id,
+    const formattedList = mediaList.map((item) => {
+      const isTv = item.media_type === "tv" || type === "tv";
+      const title = isTv ? (item.name || item.original_name) : (item.title || item.name);
+      const date = isTv ? item.first_air_date : item.release_date;
 
-      name: movie.title,
+      return {
+        _id: item.id,
+        name: title,
+        media_type: isTv ? "tv" : "movie",
+        poster: item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : "",
+        backdrop: item.backdrop_path
+          ? `https://image.tmdb.org/t/p/original${item.backdrop_path}`
+          : "",
+        overview: item.overview,
+        releaseDate: date,
+        year: date ? parseInt(date.split("-")[0]) : null,
+        rating: item.vote_average,
+        genres: item.genre_ids || [],
+        language: item.original_language,
+        originCountry: item.origin_country?.[0] || "",
+      };
+    });
 
-      poster: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : "",
-
-      backdrop: movie.backdrop_path
-        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-        : "",
-
-      overview: movie.overview,
-
-      releaseDate: movie.release_date,
-
-      year: movie.release_date
-        ? parseInt(movie.release_date.split("-")[0])
-        : null,
-
-      rating: movie.vote_average,
-
-      genres: movie.genre_ids || [],
-
-      language: movie.original_language,
-    }));
-
-    res.json(formattedMovies);
+    res.json(formattedList);
   } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      error: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
 const searchMovies = async (req, res) => {
   try {
     const { keyword } = req.params;
+    const { type = "all" } = req.query;
 
-    const movies = await searchTMDBMovies(keyword);
+    const movies = await searchTMDBMovies(keyword, type);
 
-    const formattedMovies = movies.map((movie) => ({
-      _id: movie.id,
+    const formattedMovies = (movies || [])
+      .filter((item) => item.media_type !== "person")
+      .map((item) => {
+        const isTv = item.media_type === "tv" || (type === "tv" && item.media_type !== "movie");
+        const title = item.title || item.name || item.original_title || item.original_name || "Untitled";
+        const date = item.release_date || item.first_air_date || "";
+        const posterPath = item.poster_path || item.backdrop_path || "";
 
-      name: movie.title,
-
-      poster: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : "",
-
-      backdrop: movie.backdrop_path
-        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-        : "",
-
-      overview: movie.overview,
-
-      releaseDate: movie.release_date,
-
-      year: movie.release_date
-        ? parseInt(movie.release_date.split("-")[0])
-        : null,
-
-      rating: movie.vote_average,
-
-      genres: movie.genre_ids || [],
-
-      language: movie.original_language,
-    }));
+        return {
+          _id: item.id,
+          name: title,
+          media_type: isTv ? "tv" : "movie",
+          poster: posterPath
+            ? `https://image.tmdb.org/t/p/w500${posterPath}`
+            : "https://placehold.co/500x750?text=No+Poster",
+          backdrop: item.backdrop_path
+            ? `https://image.tmdb.org/t/p/original${item.backdrop_path}`
+            : "",
+          overview: item.overview || "",
+          releaseDate: date,
+          year: date && date.includes("-") ? parseInt(date.split("-")[0]) : null,
+          rating: item.vote_average || 0,
+          genres: item.genre_ids || [],
+          language: item.original_language || "en",
+        };
+      });
 
     res.json(formattedMovies);
   } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      error: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -620,6 +702,10 @@ export {
   getTopRated,
   getUpcoming,
   getMovieGenres,
+  getTvGenresController,
+  getPlatformsController,
+  getCountriesController,
+  getTvDetailsController,
   discoverMoviesController,
   searchMovies,
 };
