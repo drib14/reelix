@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaRobot, FaSparkles, FaSearch, FaArrowRight, FaPaperPlane } from "react-icons/fa";
+import { FaRobot, FaMagic, FaSearch, FaArrowRight, FaPaperPlane } from "react-icons/fa";
 
 const SAMPLE_PROMPTS = [
   "Mind-bending sci-fi movies like Inception",
@@ -81,7 +81,7 @@ const AIFeatureSection = () => {
                   }`}
                 >
                   <span className="truncate pr-2">"{prompt}"</span>
-                  <FaSparkles className="text-red-400 text-xs flex-shrink-0" />
+                  <FaMagic className="text-red-400 text-xs flex-shrink-0" />
                 </button>
               ))}
             </div>
