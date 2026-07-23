@@ -10,7 +10,7 @@
     "fullstack": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "nodemon backend/index.js",
     "frontend": "cd frontend && npm run dev",
-    "build": "cd frontend && npm install && npm run build"
+    "build": "cd frontend && npm install --include=dev && npm run build"
   },
   "keywords": [],
   "author": "",
