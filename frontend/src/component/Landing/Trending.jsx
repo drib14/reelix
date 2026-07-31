@@ -1,18 +1,22 @@
 import MovieRow from "./MovieRow";
 import CardSkeleton from "../Skeletons/CardSkeleton";
-import { FaFire, FaStar, FaRocket } from "react-icons/fa";
+import { FaFire, FaStar, FaRocket, FaTv, FaFilm } from "react-icons/fa";
 import {
   useGetTrendingMoviesQuery,
+  useGetTrendingTvQuery,
   useGetTopRatedMoviesQuery,
-  useGetPopularMoviesQuery,
+  useGetPopularTvQuery,
+  useGetNowPlayingMoviesQuery,
 } from "../../redux/api/movies";
 
 const Trending = () => {
-  const { data: trending = [], isLoading: loadingTrending } = useGetTrendingMoviesQuery();
+  const { data: trendingMovies = [], isLoading: loadingTrending } = useGetTrendingMoviesQuery();
+  const { data: trendingTv = [], isLoading: loadingTv } = useGetTrendingTvQuery();
   const { data: topRated = [], isLoading: loadingTopRated } = useGetTopRatedMoviesQuery();
-  const { data: popular = [], isLoading: loadingPopular } = useGetPopularMoviesQuery();
+  const { data: popularTv = [], isLoading: loadingPopularTv } = useGetPopularTvQuery();
+  const { data: nowPlaying = [], isLoading: loadingNowPlaying } = useGetNowPlayingMoviesQuery();
 
-  const isLoading = loadingTrending || loadingTopRated || loadingPopular;
+  const isLoading = loadingTrending || loadingTv || loadingTopRated || loadingPopularTv || loadingNowPlaying;
 
   if (isLoading) {
     return (
@@ -25,20 +29,33 @@ const Trending = () => {
 
   return (
     <section className="bg-black px-4 sm:px-8 lg:px-12 py-12 flex flex-col gap-12 w-full max-w-7xl mx-auto">
-      {/* Row 1: Top 10 Trending */}
-      {trending.length > 0 && (
+      {/* Row 1: Trending Movies */}
+      {trendingMovies.length > 0 && (
         <MovieRow
           title={
             <span className="flex items-center gap-2.5">
               <FaFire className="text-red-500 text-xl sm:text-2xl" />
-              <span>Trending Right Now</span>
+              <span>Trending Movies</span>
             </span>
           }
-          movies={trending.slice(0, 10)}
+          movies={trendingMovies.slice(0, 10)}
         />
       )}
 
-      {/* Row 2: Top Rated Masterpieces */}
+      {/* Row 2: Trending TV Series */}
+      {trendingTv.length > 0 && (
+        <MovieRow
+          title={
+            <span className="flex items-center gap-2.5">
+              <FaTv className="text-purple-400 text-xl sm:text-2xl" />
+              <span>Trending TV Series & Shows</span>
+            </span>
+          }
+          movies={trendingTv.slice(0, 10)}
+        />
+      )}
+
+      {/* Row 3: Top Rated Masterpieces */}
       {topRated.length > 0 && (
         <MovieRow
           title={
@@ -51,16 +68,29 @@ const Trending = () => {
         />
       )}
 
-      {/* Row 3: Popular Blockbusters */}
-      {popular.length > 0 && (
+      {/* Row 4: Popular TV Series */}
+      {popularTv.length > 0 && (
         <MovieRow
           title={
             <span className="flex items-center gap-2.5">
-              <FaRocket className="text-purple-500 text-xl sm:text-2xl" />
-              <span>Popular Worldwide</span>
+              <FaRocket className="text-rose-500 text-xl sm:text-2xl" />
+              <span>Popular TV Series Worldwide</span>
             </span>
           }
-          movies={popular.slice(0, 10)}
+          movies={popularTv.slice(0, 10)}
+        />
+      )}
+
+      {/* Row 5: Now Playing in Theaters */}
+      {nowPlaying.length > 0 && (
+        <MovieRow
+          title={
+            <span className="flex items-center gap-2.5">
+              <FaFilm className="text-emerald-400 text-xl sm:text-2xl" />
+              <span>Now Playing in Theaters</span>
+            </span>
+          }
+          movies={nowPlaying.slice(0, 10)}
         />
       )}
     </section>

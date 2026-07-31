@@ -27,13 +27,13 @@ const GENRE_MAP = {
 };
 
 // ==========================================
-// Search Movie by Title
+// Search by Title (Multi — Movies + TV + Anime)
 // ==========================================
 
-export const searchMovieByTitle = async (title) => {
+export const searchByTitle = async (title, preferredType = null) => {
   try {
     const response = await axios.get(
-      "https://api.themoviedb.org/3/search/movie",
+      "https://api.themoviedb.org/3/search/multi",
       {
         params: {
           api_key: process.env.TMDB_API_KEY,
@@ -47,21 +47,36 @@ export const searchMovieByTitle = async (title) => {
       return null;
     }
 
-    const movie = response.data.results[0];
+    // Filter out "person" results, keep only movie and tv
+    const mediaResults = response.data.results.filter(
+      (item) => item.media_type === "movie" || item.media_type === "tv"
+    );
+
+    if (mediaResults.length === 0) return null;
+
+    // If the AI specified a preferred type, try to find that first
+    let best = mediaResults[0];
+    if (preferredType) {
+      const preferred = mediaResults.find((r) => r.media_type === preferredType);
+      if (preferred) best = preferred;
+    }
+
+    const isTV = best.media_type === "tv";
 
     return {
-      id: movie.id,
-      title: movie.title,
-      overview: movie.overview,
-      rating: movie.vote_average,
-      releaseDate: movie.release_date,
+      id: best.id,
+      title: isTV ? (best.name || best.original_name) : (best.title || best.original_title),
+      overview: best.overview,
+      rating: best.vote_average,
+      releaseDate: isTV ? best.first_air_date : best.release_date,
+      media_type: best.media_type,
 
-      poster: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      poster: best.poster_path
+        ? `https://image.tmdb.org/t/p/w500${best.poster_path}`
         : null,
 
-      backdrop: movie.backdrop_path
-        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+      backdrop: best.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${best.backdrop_path}`
         : null,
     };
   } catch (error) {
@@ -69,6 +84,9 @@ export const searchMovieByTitle = async (title) => {
     return null;
   }
 };
+
+// Keep backward compatibility
+export const searchMovieByTitle = searchByTitle;
 
 // ==========================================
 // Apply AI Filters
@@ -109,22 +127,26 @@ const applyFilters = (movies, filters = {}) => {
 };
 
 // ==========================================
-// Search Multiple Movies
+// Search Multiple Movies/TV Shows (Parallel)
 // ==========================================
 
 export const searchMultipleMovies = async (
   titles = [],
   filters = {}
 ) => {
-  const movies = [];
+  // Search all titles in parallel instead of sequentially
+  const results = await Promise.allSettled(
+    titles.map((item) => {
+      // Support both string titles and objects with media_type hint
+      const title = typeof item === "string" ? item : item.title;
+      const preferredType = typeof item === "string" ? null : item.media_type;
+      return searchByTitle(title, preferredType);
+    })
+  );
 
-  for (const title of titles) {
-    const movie = await searchMovieByTitle(title);
-
-    if (movie) {
-      movies.push(movie);
-    }
-  }
+  const movies = results
+    .filter((r) => r.status === "fulfilled" && r.value)
+    .map((r) => r.value);
 
   let filteredMovies = applyFilters(movies, filters);
 
@@ -134,37 +156,40 @@ export const searchMultipleMovies = async (
       GENRE_MAP[filters.genre.toLowerCase()];
 
     if (genreId) {
-      const genreMovies = [];
+      // Fetch details in parallel for genre filtering
+      const genreCheckResults = await Promise.allSettled(
+        filteredMovies.map(async (movie) => {
+          try {
+            const endpoint = movie.media_type === "tv"
+              ? `https://api.themoviedb.org/3/tv/${movie.id}`
+              : `https://api.themoviedb.org/3/movie/${movie.id}`;
 
-      for (const movie of filteredMovies) {
-        try {
-          const response = await axios.get(
-            `https://api.themoviedb.org/3/movie/${movie.id}`,
-            {
+            const response = await axios.get(endpoint, {
               params: {
                 api_key: process.env.TMDB_API_KEY,
               },
-            }
-          );
+            });
 
-          const genres = response.data.genres.map(
-            (genre) => genre.id
-          );
+            const genres = response.data.genres.map(
+              (genre) => genre.id
+            );
 
-          if (genres.includes(genreId)) {
-            genreMovies.push(movie);
+            return genres.includes(genreId) ? movie : null;
+          } catch (error) {
+            console.error(
+              "Genre filter error:",
+              error.message
+            );
+            return null;
           }
-        } catch (error) {
-          console.error(
-            "Genre filter error:",
-            error.message
-          );
-        }
-      }
+        })
+      );
 
-      filteredMovies = genreMovies;
+      filteredMovies = genreCheckResults
+        .filter((r) => r.status === "fulfilled" && r.value)
+        .map((r) => r.value);
     }
   }
 
   return filteredMovies;
-};
+};

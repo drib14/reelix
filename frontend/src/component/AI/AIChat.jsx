@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FaPaperPlane, FaRobot, FaTimes, FaPlus, FaFire, FaTrophy, FaRocket, FaSmile, FaGhost, FaHeart } from "react-icons/fa";
+import { FaPaperPlane, FaRobot, FaTimes, FaPlus, FaFire, FaTrophy, FaRocket, FaSmile, FaGhost, FaHeart, FaTv, FaFilm } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 
 import { askMovieAI, clearAISession } from "../../redux/api/aiApi";
@@ -10,22 +10,25 @@ const DEFAULT_MESSAGES = [
     sender: "ai",
     type: "chat",
     text:
-      "**Hello! I'm Reelix AI Assistant.**\n\n" +
-      "What kind of movie are you looking for today?\n\n" +
-      "• Personalized recommendations\n" +
-      "• Trending & Top-rated films\n" +
-      "• Mind-bending Sci-Fi & Thrillers\n" +
-      "• Movie plot summaries & analysis",
+      "**Hey! I'm Reelix AI — your streaming assistant.** 🎬\n\n" +
+      "I can help you find and **stream movies, TV series, and anime** — all in 1080p Ultra HD, completely free!\n\n" +
+      "• 🔍 Find any movie or TV show to stream instantly\n" +
+      "• 🎯 Get personalized recommendations\n" +
+      "• 📺 Browse trending, top-rated & upcoming titles\n" +
+      "• 🌸 Discover anime, K-dramas, documentaries & more\n\n" +
+      "Just ask me anything!",
   },
 ];
 
 const SUGGESTED_PROMPTS = [
-  { label: "Trending Now", icon: FaFire },
-  { label: "Highest Rated", icon: FaTrophy },
-  { label: "Mind Bending Sci-Fi", icon: FaRocket },
-  { label: "Comedy Hits", icon: FaSmile },
-  { label: "Chilling Horror", icon: FaGhost },
-  { label: "Romantic Dramas", icon: FaHeart },
+  { label: "Trending Movies & TV", icon: FaFire },
+  { label: "🌧️ Rainy Day Comfort", icon: FaSmile },
+  { label: "🚀 Mind Bending Sci-Fi", icon: FaRocket },
+  { label: "🌸 High-Octane Anime", icon: FaTv },
+  { label: "🍿 Adrenaline Thrillers", icon: FaFilm },
+  { label: "🕵️ Dark Mystery Noir", icon: FaGhost },
+  { label: "🏆 Highest Rated Classics", icon: FaTrophy },
+  { label: "❤️ Romantic K-Dramas", icon: FaHeart },
 ];
 
 const AIChat = ({ isOpen, onClose }) => {

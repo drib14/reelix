@@ -6,20 +6,20 @@ const createGenre = asyncHandler(async (req, res) => {
     const { name } = req.body;
 
     if (!name) {
-      return res.json({ error: "Name is required" });
+      return res.status(400).json({ success: false, message: "Genre name is required" });
     }
 
     const existingGenre = await Genre.findOne({ name });
 
     if (existingGenre) {
-      return res.json({ error: "Already exists" });
+      return res.status(400).json({ success: false, message: "Genre already exists" });
     }
 
     const genre = await new Genre({ name }).save();
-    res.json(genre);
+    res.status(201).json(genre);
   } catch (error) {
-    console.log(error);
-    return res.status(400).json(error);
+    console.error(error);
+    return res.status(400).json({ success: false, message: error.message });
   }
 });
 
@@ -31,7 +31,7 @@ const updateGenre = asyncHandler(async (req, res) => {
     const genre = await Genre.findOne({ _id: id });
 
     if (!genre) {
-      return res.status(404).json({ error: "Genre not found" });
+      return res.status(404).json({ success: false, message: "Genre not found" });
     }
 
     genre.name = name;
@@ -40,7 +40,7 @@ const updateGenre = asyncHandler(async (req, res) => {
     res.json(updatedGenre);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
@@ -50,13 +50,13 @@ const removeGenre = asyncHandler(async (req, res) => {
     const removed = await Genre.findByIdAndDelete(id);
 
     if (!removed) {
-      return res.status(404).json({ error: "Genre not found" });
+      return res.status(404).json({ success: false, message: "Genre not found" });
     }
 
     res.json(removed);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Interval server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 

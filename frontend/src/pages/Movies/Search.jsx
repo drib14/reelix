@@ -12,16 +12,16 @@ import {
 } from "../../redux/api/movies";
 
 const POPULAR_SEARCH_TAGS = [
+  "Young Sheldon",
+  "The Big Bang Theory",
   "Action",
   "Sci-Fi",
   "Marvel",
   "Batman",
   "Comedy",
   "Horror",
-  "Drama",
   "Anime",
-  "Thriller",
-  "Adventure",
+  "K-Drama",
 ];
 
 const Search = () => {

@@ -22,12 +22,16 @@ const chatWithAI = async (req, res) => {
     );
 
     if (aiResponse.type === "recommendation") {
-      const titles = aiResponse.movies.map(
-        (movie) => movie.title
+      // Pass full objects with media_type hints for better TMDB matching
+      const movieHints = aiResponse.movies.map(
+        (movie) => ({
+          title: movie.title,
+          media_type: movie.media_type || null,
+        })
       );
 
       const movies = await searchMultipleMovies(
-        titles,
+        movieHints,
         aiResponse.filters || {}
       );
 

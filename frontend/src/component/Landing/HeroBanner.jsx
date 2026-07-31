@@ -22,14 +22,12 @@ const HeroBanner = ({ movie }) => {
 
         <div className="max-w-3xl">
 
-          <h1 className="text-5xl md:text-7xl font-black leading-tight text-white">
-            Discover Movies
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black leading-tight text-white tracking-tight">
+            Discover Catalog
           </h1>
 
-          <p className="mt-8 text-gray-300 text-xl leading-9">
-            Explore thousands of trending, popular, top-rated and upcoming
-            movies. Search your favourites, discover hidden gems, and build
-            your own personal watchlist with Reelix.
+          <p className="mt-4 sm:mt-6 text-gray-300 text-sm sm:text-lg md:text-xl leading-relaxed max-w-2xl">
+            Explore thousands of trending movies, TV series, anime, and live streams across global providers. Build your personal watchlist on Reelix.
           </p>
 
         </div>

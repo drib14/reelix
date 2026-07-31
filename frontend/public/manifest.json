@@ -1,0 +1,22 @@
+{
+  "short_name": "Reelix",
+  "name": "Reelix — Free 1080p Ultra HD Movies & TV Series",
+  "icons": [
+    {
+      "src": "/avatars/cyberpunk_hero.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/avatars/cyberpunk_hero.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0d0d0e",
+  "theme_color": "#e50914",
+  "display": "standalone",
+  "orientation": "any",
+  "description": "Stream thousands of blockbuster movies, TV series, and anime in 1080p Ultra HD across 8 global servers."
+}

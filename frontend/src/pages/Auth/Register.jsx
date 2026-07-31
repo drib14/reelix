@@ -8,6 +8,7 @@ import { useRegisterMutation } from "../../redux/api/users";
 import { toast } from "react-toastify";
 import { FaArrowLeft } from "react-icons/fa";
 import Logo from "../../component/Logo";
+import { REELIX_FALLBACK_BACKDROP } from "../../utils/assets";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -52,8 +53,7 @@ const Register = () => {
     <section
       className="relative min-h-screen flex flex-col justify-between items-center bg-cover bg-center px-4 py-8"
       style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop')",
+        backgroundImage: `url(${REELIX_FALLBACK_BACKDROP})`,
       }}
     >
       <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0e] via-black/80 to-black/90 backdrop-blur-sm"></div>

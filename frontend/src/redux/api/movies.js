@@ -75,19 +75,55 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
     // =========================
 
     getTrendingMovies: builder.query({
-      query: () => `${MOVIE_URL}/trending`,
+      query: (page = 1) => `${MOVIE_URL}/trending?page=${page}`,
+    }),
+
+    getTrendingTv: builder.query({
+      query: (page = 1) => `${MOVIE_URL}/trending-tv?page=${page}`,
+    }),
+
+    getTrendingAll: builder.query({
+      query: (page = 1) => `${MOVIE_URL}/trending-all?page=${page}`,
     }),
 
     getPopularMovies: builder.query({
-      query: () => `${MOVIE_URL}/popular`,
+      query: (page = 1) => `${MOVIE_URL}/popular?page=${page}`,
+    }),
+
+    getPopularTv: builder.query({
+      query: (page = 1) => `${MOVIE_URL}/popular-tv?page=${page}`,
     }),
 
     getTopRatedMovies: builder.query({
-      query: () => `${MOVIE_URL}/top-rated`,
+      query: (page = 1) => `${MOVIE_URL}/top-rated?page=${page}`,
+    }),
+
+    getTopRatedTv: builder.query({
+      query: (page = 1) => `${MOVIE_URL}/top-rated-tv?page=${page}`,
+    }),
+
+    getAiringTodayTv: builder.query({
+      query: (page = 1) => `${MOVIE_URL}/airing-today?page=${page}`,
+    }),
+
+    getOnTheAirTv: builder.query({
+      query: (page = 1) => `${MOVIE_URL}/on-the-air?page=${page}`,
+    }),
+
+    getNowPlayingMovies: builder.query({
+      query: (page = 1) => `${MOVIE_URL}/now-playing?page=${page}`,
     }),
 
     getUpcomingMovies: builder.query({
-      query: () => `${MOVIE_URL}/upcoming`,
+      query: (page = 1) => `${MOVIE_URL}/upcoming?page=${page}`,
+    }),
+
+    getPersonDetails: builder.query({
+      query: (id) => `${MOVIE_URL}/person/${id}`,
+    }),
+
+    getCollectionDetails: builder.query({
+      query: (id) => `${MOVIE_URL}/collection/${id}`,
     }),
 
     // =========================
@@ -182,9 +218,18 @@ export const {
   useGetRandomMoviesQuery,
 
   useGetTrendingMoviesQuery,
+  useGetTrendingTvQuery,
+  useGetTrendingAllQuery,
   useGetPopularMoviesQuery,
+  useGetPopularTvQuery,
   useGetTopRatedMoviesQuery,
+  useGetTopRatedTvQuery,
+  useGetAiringTodayTvQuery,
+  useGetOnTheAirTvQuery,
+  useGetNowPlayingMoviesQuery,
   useGetUpcomingMoviesQuery,
+  useGetPersonDetailsQuery,
+  useGetCollectionDetailsQuery,
 
   useGetGenresQuery,
   useGetTvGenresQuery,

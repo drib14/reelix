@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { FaPlay, FaStar, FaTv, FaFilm } from "react-icons/fa";
 import { getCountryFlag } from "../../utils/countryUtils";
+import { REELIX_FALLBACK_POSTER } from "../../utils/assets";
 
 const MovieCard = ({ movie }) => {
   const isTv = movie.media_type === "tv";
@@ -21,6 +22,8 @@ const MovieCard = ({ movie }) => {
     );
   };
 
+  const imageSrc = movie.poster || movie.image || movie.backdrop || REELIX_FALLBACK_POSTER;
+
   return (
     <Link
       to={`/movies/${movie._id || movie.id}${isTv ? "?type=tv" : ""}`}
@@ -29,10 +32,13 @@ const MovieCard = ({ movie }) => {
       {/* Poster Image Container */}
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
         <img
-          src={movie.image || movie.poster || "https://placehold.co/500x750?text=No+Poster"}
-          alt={movie.name}
+          src={imageSrc}
+          alt={movie.name || movie.title || "Movie Poster"}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
+          onError={(e) => {
+            e.target.src = REELIX_FALLBACK_POSTER;
+          }}
         />
 
         {/* Top Floating Badges */}

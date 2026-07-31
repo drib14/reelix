@@ -8,6 +8,7 @@ import { useLoginMutation } from "../../redux/api/users";
 import { toast } from "react-toastify";
 import { FaArrowLeft } from "react-icons/fa";
 import Logo from "../../component/Logo";
+import { REELIX_FALLBACK_BACKDROP } from "../../utils/assets";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -45,8 +46,7 @@ const Login = () => {
     <section
       className="relative min-h-screen flex flex-col justify-between items-center bg-cover bg-center px-4 py-8"
       style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1485095329183-d0797cdc5676?q=80&w=2070&auto=format&fit=crop')",
+        backgroundImage: `url(${REELIX_FALLBACK_BACKDROP})`,
       }}
     >
       <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0e] via-black/80 to-black/90 backdrop-blur-sm"></div>

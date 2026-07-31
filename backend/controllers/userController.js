@@ -7,11 +7,27 @@ const createUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
-    throw new Error("Please fill all the fields");
+    res.status(400);
+    throw new Error("Please fill all the required fields");
+  }
+
+  // Basic email regex validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    res.status(400);
+    throw new Error("Please provide a valid email address");
+  }
+
+  if (password.length < 6) {
+    res.status(400);
+    throw new Error("Password must be at least 6 characters long");
   }
 
   const userExists = await User.findOne({ email });
-  if (userExists) res.status(400).send("User already exists");
+  if (userExists) {
+    res.status(400);
+    throw new Error("User with this email already exists");
+  }
 
   // Hash the user password
   const salt = await bcrypt.genSalt(10);

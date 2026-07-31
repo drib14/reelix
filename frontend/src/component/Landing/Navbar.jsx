@@ -18,6 +18,7 @@ import {
 
 import { logout } from "../../redux/features/auth/authSlice";
 import { useLogoutMutation } from "../../redux/api/users";
+import { MINIMAL_AVATARS } from "../../utils/assets";
 
 import Logo from "../Logo";
 
@@ -171,12 +172,18 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 transition px-4 py-2 rounded-xl text-white text-sm font-medium"
+                  className="flex items-center gap-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 transition px-3.5 py-1.5 rounded-xl text-white text-sm font-medium shadow-md"
                 >
-                  <span className="w-6 h-6 rounded-full bg-gradient-to-tr from-red-600 to-purple-600 flex items-center justify-center text-xs font-bold uppercase shadow-sm">
-                    {userInfo.username?.[0] || "U"}
-                  </span>
-                  <span>{userInfo.username}</span>
+                  <img
+                    src={
+                      (MINIMAL_AVATARS.find(
+                        (a) => a.id === localStorage.getItem("reelix-avatar-id")
+                      ) || MINIMAL_AVATARS[0]).svg
+                    }
+                    alt={userInfo.username}
+                    className="w-7 h-7 rounded-lg object-cover border border-red-500/60 shadow"
+                  />
+                  <span className="font-bold">{userInfo.username}</span>
                   <FaChevronDown className="text-[10px] text-gray-400" />
                 </button>
 

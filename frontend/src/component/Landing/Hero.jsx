@@ -11,6 +11,7 @@ import {
 import { useGetTrendingMoviesQuery } from "../../redux/api/movies";
 import MoviePlayerModal from "../MoviePlayerModal";
 import HeroSkeleton from "../Skeletons/HeroSkeleton";
+import { REELIX_FALLBACK_BACKDROP } from "../../utils/assets";
 
 const Hero = () => {
   const { data: trendingMovies = [], isLoading } = useGetTrendingMoviesQuery();
@@ -50,9 +51,9 @@ const Hero = () => {
     name: "Stream Beyond Imagination",
     overview: "Explore thousands of blockbuster movies, TV series, and AI-curated picks instantly in Ultra HD.",
     rating: 8.8,
-    year: 2024,
-    poster: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1920&auto=format&fit=crop",
-    backdrop: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1920&auto=format&fit=crop",
+    year: 2026,
+    poster: REELIX_FALLBACK_BACKDROP,
+    backdrop: REELIX_FALLBACK_BACKDROP,
   };
 
   const isTv = activeMovie?.media_type === "tv";
@@ -81,8 +82,7 @@ const Hero = () => {
           <div
             className="absolute inset-0 bg-cover bg-center opacity-30 blur-sm scale-105"
             style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1920&auto=format&fit=crop')",
+              backgroundImage: `url(${REELIX_FALLBACK_BACKDROP})`,
             }}
           />
         )}

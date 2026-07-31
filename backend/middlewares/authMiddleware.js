@@ -29,7 +29,7 @@ const authorizeAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
-    res.status(401).send("Not authorized as an admin");
+    res.status(403).json({ success: false, message: "Forbidden: Admin access required" });
   }
 };
 

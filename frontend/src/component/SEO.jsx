@@ -1,11 +1,14 @@
 import { useEffect } from "react";
+import { REELIX_FALLBACK_BACKDROP } from "../utils/assets";
 
 const SEO = ({
   title = "Reelix — Watch & Stream Movies, TV Series & Anime in 1080p Ultra HD",
   description = "Stream thousands of free movies, trending TV series, and anime in 1080p Ultra HD on Reelix. Explore top rated cinema and stream across 8 global HD servers.",
-  keywords = "Reelix, movie streaming, watch movies online, stream TV series, anime 1080p HD",
-  image = "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=1200&auto=format&fit=crop",
-  url = window.location.href,
+  keywords = "Reelix, movie streaming, watch movies online free, stream TV series, anime 1080p HD, free HD movies, watch One Piece online, Young Sheldon stream, Big Bang Theory free stream, anime 1080p",
+  image = REELIX_FALLBACK_BACKDROP,
+  url = typeof window !== "undefined" ? window.location.href : "https://reelix.app",
+  type = "website",
+  schemaData = null,
 }) => {
   useEffect(() => {
     // 1. Dynamic Title
@@ -32,12 +35,34 @@ const SEO = ({
     setMetaTag('meta[property="og:description"]', "content", description);
     setMetaTag('meta[property="og:image"]', "content", image);
     setMetaTag('meta[property="og:url"]', "content", url);
+    setMetaTag('meta[property="og:type"]', "content", type);
 
     // Twitter Tags
     setMetaTag('meta[name="twitter:title"]', "content", title);
     setMetaTag('meta[name="twitter:description"]', "content", description);
     setMetaTag('meta[name="twitter:image"]', "content", image);
-  }, [title, description, keywords, image, url]);
+
+    // 3. Dynamic Canonical Link for Top Search Engine Ranking
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", url);
+
+    // 4. Dynamic JSON-LD Structured Data Injection
+    if (schemaData) {
+      let schemaScript = document.getElementById("dynamic-seo-schema");
+      if (!schemaScript) {
+        schemaScript = document.createElement("script");
+        schemaScript.id = "dynamic-seo-schema";
+        schemaScript.type = "application/ld+json";
+        document.head.appendChild(schemaScript);
+      }
+      schemaScript.textContent = JSON.stringify(schemaData);
+    }
+  }, [title, description, keywords, image, url, type, schemaData]);
 
   return null;
 };

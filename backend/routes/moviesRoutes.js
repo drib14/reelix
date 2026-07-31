@@ -25,6 +25,15 @@ import {
   getTvSeasonDetailsController,
   discoverMoviesController,
   searchMovies,
+  getTrendingTvController,
+  getPopularTvController,
+  getTopRatedTvController,
+  getAiringTodayTvController,
+  getOnTheAirTvController,
+  getNowPlayingMoviesController,
+  getTrendingAllController,
+  getPersonDetailsController,
+  getCollectionDetailsController,
 } from "../controllers/movieController.js";
 
 // Middlewares
@@ -41,6 +50,10 @@ router.get("/tv/:id", getTvDetailsController);
 
 router.get("/tv/:id/season/:seasonNumber", getTvSeasonDetailsController);
 
+router.get("/person/:id", getPersonDetailsController);
+
+router.get("/collection/:id", getCollectionDetailsController);
+
 router.get("/new-movies", getNewMovies);
 
 router.get("/top-movies", getTopMovies);
@@ -51,9 +64,23 @@ router.get("/random-movies", getRandomMovies);
 
 router.get("/trending", getTrending);
 
+router.get("/trending-tv", getTrendingTvController);
+
+router.get("/trending-all", getTrendingAllController);
+
 router.get("/popular", getPopular);
 
+router.get("/popular-tv", getPopularTvController);
+
 router.get("/top-rated", getTopRated);
+
+router.get("/top-rated-tv", getTopRatedTvController);
+
+router.get("/airing-today", getAiringTodayTvController);
+
+router.get("/on-the-air", getOnTheAirTvController);
+
+router.get("/now-playing", getNowPlayingMoviesController);
 
 router.get("/upcoming", getUpcoming);
 

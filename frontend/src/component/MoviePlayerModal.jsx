@@ -724,6 +724,34 @@ const MoviePlayerModal = ({
             />
           )}
 
+          {/* ================= FLOATING TV SERIES OVERLAY CONTROLS ================= */}
+          {isTvSeries && showControls && (
+            <div className="absolute bottom-6 right-6 z-40 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <button
+                disabled={currentEpisode <= 1}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEpisodeSelect(currentSeason, Math.max(1, currentEpisode - 1));
+                }}
+                className="bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 disabled:opacity-30 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-xl backdrop-blur-md flex items-center gap-2 transition"
+              >
+                <FaStepBackward className="text-xs" />
+                <span>Prev Ep</span>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEpisodeSelect(currentSeason, currentEpisode + 1);
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-2xl shadow-red-600/40 backdrop-blur-md flex items-center gap-2 transition transform hover:scale-105"
+              >
+                <span>Next Episode (EP {currentEpisode + 1})</span>
+                <FaStepForward className="text-xs" />
+              </button>
+            </div>
+          )}
+
           {/* ================= IN-PLAYER EPISODES & SEASONS DRAWER ================= */}
           {showEpisodesDrawer && (
             <div

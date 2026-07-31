@@ -15,6 +15,10 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import compression from "compression";
+import mongoose from "mongoose";
 
 // ==============================
 // Database
@@ -41,7 +45,25 @@ connectDB();
 const app = express();
 
 // ==============================
-// CORS
+// Security Headers (#5)
+// ==============================
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: false, // Disable CSP to allow iframe embeds for streaming
+  })
+);
+
+// ==============================
+// Compression (#35)
+// ==============================
+
+app.use(compression());
+
+// ==============================
+// CORS — Fixed (#3)
 // ==============================
 
 const allowedOrigins = [
@@ -53,21 +75,57 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".onrender.com")) {
+      // Allow requests with no origin (mobile apps, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin) || origin.endsWith(".onrender.com")) {
         return callback(null, true);
       }
-      return callback(null, true);
+      return callback(new Error("Not allowed by CORS"), false);
     },
     credentials: true,
   })
 );
 
 // ==============================
+// Rate Limiting (#4)
+// ==============================
+
+// General API rate limit: 100 requests per minute
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many requests, please try again later." },
+});
+
+// Strict auth rate limit: 10 requests per minute
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many authentication attempts, please try again later." },
+});
+
+// AI rate limit: 15 requests per minute
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "AI rate limit exceeded. Please wait a moment." },
+});
+
+// Apply general limiter to all API routes
+app.use("/api/", generalLimiter);
+
+// ==============================
 // Middleware
 // ==============================
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 
 // ==============================
@@ -77,22 +135,79 @@ app.use(cookieParser());
 const PORT = process.env.PORT || 3000;
 
 // ==============================
-// Health Check Endpoint
+// Health Check Endpoint (#37)
 // ==============================
 
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Reelix API is live" });
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = dbState === 1 ? "connected" : dbState === 2 ? "connecting" : "disconnected";
+
+  res.status(dbState === 1 ? 200 : 503).json({
+    status: dbState === 1 ? "ok" : "degraded",
+    message: "Reelix API",
+    database: dbStatus,
+    uptime: Math.floor(process.uptime()),
+  });
 });
 
 // ==============================
-// API Routes
+// Search Engine SEO Routes (Googlebot / Bingbot / DuckDuckBot)
 // ==============================
 
-app.use("/api/v1/users", userRoutes);
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain");
+  res.send(`User-agent: *\nAllow: /\nSitemap: ${req.protocol}://${req.get("host")}/sitemap.xml\n`);
+});
+
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const date = new Date().toISOString().split("T")[0];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/movies</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/search</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/profile</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>`;
+
+    res.header("Content-Type", "application/xml");
+    res.send(xml);
+  } catch (err) {
+    res.status(500).send("Error generating sitemap");
+  }
+});
+
+// ==============================
+// API Routes (with rate limiters)
+// ==============================
+
+app.use("/api/v1/users", authLimiter, userRoutes);
 app.use("/api/v1/genre", genreRoutes);
 app.use("/api/v1/movies", moviesRoutes);
 app.use("/api/v1/upload", uploadRoutes);
-app.use("/api/v1/ai", aiRoutes);
+app.use("/api/v1/ai", aiLimiter, aiRoutes);
 
 // ==============================
 // Static Uploads & Production Client
@@ -122,6 +237,21 @@ app.use("/api/*", (req, res) => {
   res.status(404).json({ success: false, message: "API route not found" });
 });
 
+// ==============================
+// Global Error Handler (#14)
+// ==============================
+
+app.use((err, req, res, next) => {
+  console.error(`[ERROR] ${err.message}`);
+
+  const statusCode = err.statusCode || res.statusCode === 200 ? 500 : res.statusCode;
+
+  res.status(statusCode).json({
+    success: false,
+    message: process.env.NODE_ENV === "production" ? "Server error" : err.message,
+    stack: process.env.NODE_ENV === "production" ? undefined : err.stack,
+  });
+});
 
 // ==============================
 // Start Server
@@ -129,4 +259,4 @@ app.use("/api/*", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
+});

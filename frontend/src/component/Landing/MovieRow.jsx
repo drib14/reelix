@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { FaPlay, FaStar, FaChevronLeft, FaChevronRight, FaArrowRight } from "react-icons/fa";
+import { REELIX_FALLBACK_POSTER } from "../../utils/assets";
 
 const MovieRow = ({ title, movies }) => {
   const rowRef = useRef(null);
@@ -58,59 +59,66 @@ const MovieRow = ({ title, movies }) => {
           ref={rowRef}
           className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth px-1"
         >
-          {movies?.map((movie, index) => (
-            <Link
-              key={movie._id || index}
-              to={`/movies/${movie._id}`}
-              className="relative flex-shrink-0 group/card cursor-pointer"
-            >
-              {/* Rank Number (Netflix Top 10 style) */}
-              <span className="absolute -left-3 bottom-1 text-7xl sm:text-8xl font-black text-black opacity-80 [-webkit-text-stroke:2px_rgba(255,255,255,0.7)] z-20 pointer-events-none select-none">
-                {index + 1}
-              </span>
+          {movies?.map((movie, index) => {
+            const imageSrc = movie.poster || movie.image || movie.backdrop || REELIX_FALLBACK_POSTER;
 
-              {/* Poster Card Container */}
-              <div className="relative w-[150px] sm:w-[200px] h-[225px] sm:h-[300px] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 group-hover/card:scale-105 group-hover/card:border-red-600/60 group-hover/card:shadow-[0_10px_25px_-5px_rgba(229,9,20,0.4)] ml-3">
-                <img
-                  src={movie.image || movie.poster}
-                  alt={movie.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110"
-                  loading="lazy"
-                />
+            return (
+              <Link
+                key={movie._id || movie.id || index}
+                to={`/movies/${movie._id || movie.id}${movie.media_type === "tv" ? "?type=tv" : ""}`}
+                className="relative flex-shrink-0 group/card cursor-pointer"
+              >
+                {/* Rank Number (Netflix Top 10 style) */}
+                <span className="absolute -left-3 bottom-1 text-7xl sm:text-8xl font-black text-black opacity-80 [-webkit-text-stroke:2px_rgba(255,255,255,0.7)] z-20 pointer-events-none select-none">
+                  {index + 1}
+                </span>
 
-                {/* Top Rating Badge */}
-                <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
-                  {movie.rating && (
-                    <span className="bg-black/80 backdrop-blur-md text-amber-400 text-xs font-bold px-2 py-0.5 rounded-md border border-amber-400/30 flex items-center gap-1">
-                      <FaStar className="text-[10px]" />
-                      <span>{movie.rating}</span>
-                    </span>
-                  )}
-                </div>
+                {/* Poster Card Container */}
+                <div className="relative w-[150px] sm:w-[200px] h-[225px] sm:h-[300px] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 group-hover/card:scale-105 group-hover/card:border-red-600/60 group-hover/card:shadow-[0_10px_25px_-5px_rgba(229,9,20,0.4)] ml-3">
+                  <img
+                    src={imageSrc}
+                    alt={movie.name || movie.title || "Poster"}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.src = REELIX_FALLBACK_POSTER;
+                    }}
+                  />
 
-                {/* Hover Play Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 sm:p-4">
-                  <div className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center pl-0.5 mb-2 shadow-lg transform translate-y-4 group-hover/card:translate-y-0 transition-transform duration-300">
-                    <FaPlay className="text-sm" />
-                  </div>
-
-                  <h3 className="font-bold text-sm sm:text-base text-white line-clamp-1">
-                    {movie.name}
-                  </h3>
-
-                  <div className="flex items-center gap-2 text-xs text-gray-300 mt-1">
-                    <span>{movie.year}</span>
-                    {movie.genre?.name && (
-                      <>
-                        <span>•</span>
-                        <span className="text-red-400">{movie.genre.name}</span>
-                      </>
+                  {/* Top Rating Badge */}
+                  <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+                    {movie.rating && (
+                      <span className="bg-black/80 backdrop-blur-md text-amber-400 text-xs font-bold px-2 py-0.5 rounded-md border border-amber-400/30 flex items-center gap-1">
+                        <FaStar className="text-[10px]" />
+                        <span>{movie.rating}</span>
+                      </span>
                     )}
                   </div>
+
+                  {/* Hover Play Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 sm:p-4">
+                    <div className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center pl-0.5 mb-2 shadow-lg transform translate-y-4 group-hover/card:translate-y-0 transition-transform duration-300">
+                      <FaPlay className="text-sm" />
+                    </div>
+
+                    <h3 className="font-bold text-sm sm:text-base text-white line-clamp-1">
+                      {movie.name || movie.title}
+                    </h3>
+
+                    <div className="flex items-center gap-2 text-xs text-gray-300 mt-1">
+                      <span>{movie.year || "2024"}</span>
+                      {movie.genre?.name && (
+                        <>
+                          <span>•</span>
+                          <span className="text-red-400">{movie.genre.name}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
