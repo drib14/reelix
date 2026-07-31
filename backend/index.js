@@ -52,7 +52,42 @@ app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginEmbedderPolicy: false,
-    contentSecurityPolicy: false, // Disable CSP to allow iframe embeds for streaming
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          "https://image.tmdb.org",
+          "https://*.tmdb.org",
+        ],
+        mediaSrc: ["'self'", "blob:", "https://commondatastorage.googleapis.com"],
+        frameSrc: [
+          "'self'",
+          "https://www.youtube.com",
+          "https://www.youtube-nocookie.com",
+          "https://player.vimeo.com",
+          "https://*.2embed.cc",
+          "https://*.vidsrc.me",
+          "https://*.vidsrc.to",
+          "https://*.vidsrc.xyz",
+          "https://*.embedsu.com",
+          "https://*.autoembed.cc",
+          "https://*.vidlink.pro",
+          "https://*.2anime.xyz",
+          "https://*.vidfast.pro",
+          "https://*.multiembed.mov",
+        ],
+        connectSrc: ["'self'", "https://api.openai.com", "https://api.themoviedb.org"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
   })
 );
 
@@ -127,6 +162,13 @@ app.use("/api/", generalLimiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
+
+// ==============================
+// Input Sanitization (NoSQL Injection Prevention)
+// ==============================
+
+import sanitizeInput from "./middlewares/sanitizeInput.js";
+app.use(sanitizeInput);
 
 // ==============================
 // Port

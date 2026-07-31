@@ -21,6 +21,9 @@ import { useLogoutMutation } from "../../redux/api/users";
 import { MINIMAL_AVATARS } from "../../utils/assets";
 
 import Logo from "../Logo";
+import MovieRouletteModal from "../MovieRouletteModal";
+import FranchiseMarathonModal from "../FranchiseMarathonModal";
+import { FaDice, FaLayerGroup } from "react-icons/fa";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -31,6 +34,8 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [rouletteOpen, setRouletteOpen] = useState(false);
+  const [marathonOpen, setMarathonOpen] = useState(false);
 
   const watchlist = useSelector((state) => state.watchlist.movies);
   const { userInfo } = useSelector((state) => state.auth);
@@ -107,6 +112,20 @@ const Navbar = () => {
                 <FaCompass className="text-xs" />
                 <span>Explore Movies</span>
               </Link>
+              <button
+                onClick={() => setRouletteOpen(true)}
+                className="flex items-center gap-1.5 text-xs bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-full border border-red-500/30 transition-all font-semibold"
+              >
+                <FaDice className="text-xs" />
+                <span>Roulette 🎲</span>
+              </button>
+              <button
+                onClick={() => setMarathonOpen(true)}
+                className="flex items-center gap-1.5 text-xs bg-amber-500/20 text-amber-300 hover:bg-amber-500 hover:text-white px-3 py-1.5 rounded-full border border-amber-500/30 transition-all font-semibold"
+              >
+                <FaLayerGroup className="text-xs" />
+                <span>Marathons 🍿</span>
+              </button>
               <Link
                 to="/watchlist"
                 className={`flex items-center gap-2 transition-colors hover:text-red-500 ${
@@ -327,6 +346,9 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      <MovieRouletteModal isOpen={rouletteOpen} onClose={() => setRouletteOpen(false)} />
+      <FranchiseMarathonModal isOpen={marathonOpen} onClose={() => setMarathonOpen(false)} />
     </header>
   );
 };

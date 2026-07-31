@@ -117,6 +117,96 @@
   .animate-banner-poster {
     animation: bannerScaleUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
+
+  /* 3D Dynamic Card Tilt & Hover Utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .translate-z-12 {
+    transform: translateZ(12px);
+  }
+
+  .translate-z-24 {
+    transform: translateZ(24px);
+  }
+
+  .card-3d-container {
+    perspective: 1000px;
+    will-change: transform;
+  }
+
+  .card-3d-wrapper {
+    transition: transform 0.15s ease-out, box-shadow 0.2s ease-out;
+    transform-style: preserve-3d;
+    position: relative;
+  }
+
+  .card-3d-wrapper:hover {
+    box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.35), 0 0 20px 2px rgba(229, 9, 20, 0.15);
+  }
+
+  .card-3d-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at var(--glare-x, 50%) var(--glare-y, 50%),
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    mix-blend-mode: overlay;
+    z-index: 20;
+  }
+
+  .card-3d-wrapper:hover .card-3d-glare {
+    opacity: 1;
+  }
+
+  /* 3D Casino Roulette Stage & Wheel */
+  .roulette-3d-stage {
+    perspective: 1200px;
+    transform-style: preserve-3d;
+  }
+
+  .roulette-3d-wheel {
+    transform-style: preserve-3d;
+    transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.15, 1);
+    box-shadow: 
+      0 0 50px rgba(229, 9, 20, 0.3),
+      0 20px 40px rgba(0, 0, 0, 0.8),
+      inset 0 0 30px rgba(0, 0, 0, 0.9);
+  }
+
+  .roulette-3d-[card-reveal] {
+    animation: card3DFlip 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .neon-glow-red {
+    box-shadow: 0 0 25px rgba(229, 9, 20, 0.6), 0 0 50px rgba(229, 9, 20, 0.3);
+  }
+
+  .neon-glow-amber {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.6), 0 0 50px rgba(245, 158, 11, 0.3);
+  }
+}
+
+@keyframes card3DFlip {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) rotateY(-180deg) scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0deg) scale(1);
+  }
 }
 
 @keyframes slideLeft {
@@ -158,3 +248,4 @@
     transform: scale(1) translateY(0);
   }
 }
+

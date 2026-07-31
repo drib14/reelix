@@ -4,6 +4,7 @@ import Navbar from "../../component/Landing/Navbar";
 import HeroBanner from "../../component/Landing/HeroBanner";
 import MovieGrid from "./MovieGrid";
 import FilterBar from "../../component/Explorer/FilterBar";
+import MicroGenreFilter from "../../component/MicroGenreFilter";
 import SEO from "../../component/SEO";
 import { getCountryFlag } from "../../utils/countryUtils";
 
@@ -140,6 +141,12 @@ const AllMovies = () => {
           </div>
         ) : (
           <>
+            <MicroGenreFilter
+              selectedTag={genre}
+              onSelectTag={(tag) => {
+                setGenre(tag.query ? tag.id : "");
+              }}
+            />
             <MovieGrid movies={discoverMedia} isLoading={false} />
 
             <div className="flex justify-center mt-12">

@@ -39,6 +39,7 @@ import {
 // Middlewares
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import checkId from "../middlewares/checkId.js";
+import { cacheMiddleware } from "../middlewares/cacheMiddleware.js";
 
 // ================= PUBLIC ROUTES =================
 
@@ -86,13 +87,13 @@ router.get("/upcoming", getUpcoming);
 
 // ================= TMDB GENRES & METADATA =================
 
-router.get("/genres", getMovieGenres);
+router.get("/genres", cacheMiddleware(300), getMovieGenres);
 
-router.get("/tv-genres", getTvGenresController);
+router.get("/tv-genres", cacheMiddleware(300), getTvGenresController);
 
-router.get("/platforms", getPlatformsController);
+router.get("/platforms", cacheMiddleware(300), getPlatformsController);
 
-router.get("/countries", getCountriesController);
+router.get("/countries", cacheMiddleware(300), getCountriesController);
 
 // ================= DISCOVER MEDIA =================
 

@@ -115,6 +115,13 @@ const movieSchema = new mongoose.Schema(
   }
 );
 
+// Indexes for query & search performance
+movieSchema.index({ name: "text", overview: "text" });
+movieSchema.index({ genres: 1, createdAt: -1 });
+movieSchema.index({ featured: 1, createdAt: -1 });
+movieSchema.index({ rating: -1 });
+movieSchema.index({ year: -1 });
+
 const Movie = mongoose.model("Movie", movieSchema);
 
 export default Movie;
