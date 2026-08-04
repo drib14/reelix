@@ -5,7 +5,10 @@ dotenv.config();
 dotenv.config({ path: "./backend/.env" });
 
 const getClient = () => {
-  const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY || "placeholder-key";
+  const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY environment variable is not configured.");
+  }
   const baseURL = process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1";
 
   return new OpenAI({

@@ -1,10 +1,14 @@
 import axios from "axios";
 
 const getTMDB = () => {
+  const token = process.env.TMDB_READ_ACCESS_TOKEN;
+  if (!token) {
+    throw new Error("TMDB_READ_ACCESS_TOKEN environment variable is not configured.");
+  }
   return axios.create({
     baseURL: "https://api.themoviedb.org/3",
     headers: {
-      Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       Accept: "application/json",
     },
   });
