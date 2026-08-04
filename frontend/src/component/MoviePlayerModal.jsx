@@ -435,6 +435,53 @@ const MoviePlayerModal = ({
     };
   }, [isOpen]);
 
+  // Keyboard Shortcuts (Space: Play/Pause, Right/Left: ±10s, F: Fullscreen, M: Mute)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
+
+      if (e.code === "Space" || e.code === "KeyK") {
+        e.preventDefault();
+        const video = videoRef.current;
+        if (video) {
+          if (video.paused) {
+            video.play();
+            setIsPlaying(true);
+          } else {
+            video.pause();
+            setIsPlaying(false);
+          }
+        }
+      } else if (e.code === "ArrowRight") {
+        e.preventDefault();
+        if (videoRef.current) videoRef.current.currentTime += 10;
+      } else if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        if (videoRef.current) videoRef.current.currentTime -= 10;
+      } else if (e.code === "KeyF") {
+        e.preventDefault();
+        if (containerRef.current) {
+          if (!document.fullscreenElement) {
+            containerRef.current.requestFullscreen?.();
+          } else {
+            document.exitFullscreen?.();
+          }
+        }
+      } else if (e.code === "KeyM") {
+        e.preventDefault();
+        if (videoRef.current) {
+          videoRef.current.muted = !videoRef.current.muted;
+          setIsMuted(videoRef.current.muted);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const togglePlay = () => {

@@ -1,4 +1,5 @@
 import Movie from "../models/Movie.js";
+import Review from "../models/Review.js";
 import {
   getTrendingMovies,
   getPopularMovies,
@@ -737,6 +738,132 @@ const getTrailerController = async (req, res) => {
   }
 };
 
+// ==========================================
+// MongoDB Reviews Controllers
+// ==========================================
+
+const getMovieReviews = async (req, res) => {
+  try {
+    const { id: movieId } = req.params;
+    const reviews = await Review.find({ movieId }).sort({ createdAt: -1 });
+
+    const totalReviews = reviews.length;
+    let totalRating = 0;
+    const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+
+    reviews.forEach((r) => {
+      totalRating += r.rating;
+      if (ratingCounts[r.rating] !== undefined) {
+        ratingCounts[r.rating] += 1;
+      }
+    });
+
+    const averageRating = totalReviews > 0 ? (totalRating / totalReviews).toFixed(1) : 0;
+
+    res.json({
+      success: true,
+      totalReviews,
+      averageRating: Number(averageRating),
+      ratingCounts,
+      reviews,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const createMovieReview = async (req, res) => {
+  try {
+    const { id: movieId } = req.params;
+    const { rating, comment } = req.body;
+
+    if (!rating || !comment || comment.trim() === "") {
+      return res.status(400).json({ success: false, message: "Rating and comment are required." });
+    }
+
+    const numRating = Number(rating);
+    if (isNaN(numRating) || numRating < 1 || numRating > 5) {
+      return res.status(400).json({ success: false, message: "Rating must be between 1 and 5." });
+    }
+
+    // Upsert review (update if exists, create if new)
+    let review = await Review.findOne({ movieId, user: req.user._id });
+
+    if (review) {
+      review.rating = numRating;
+      review.comment = comment.trim();
+      review.userAvatar = req.user.avatar || "";
+      await review.save();
+    } else {
+      review = await Review.create({
+        movieId,
+        user: req.user._id,
+        username: req.user.username,
+        userAvatar: req.user.avatar || "",
+        rating: numRating,
+        comment: comment.trim(),
+        likes: [],
+      });
+    }
+
+    res.status(201).json({ success: true, message: "Review posted successfully!", review });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const toggleLikeReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found" });
+    }
+
+    const userId = req.user._id;
+    const alreadyLiked = review.likes.some((id) => id.toString() === userId.toString());
+
+    if (alreadyLiked) {
+      review.likes = review.likes.filter((id) => id.toString() !== userId.toString());
+    } else {
+      review.likes.push(userId);
+    }
+
+    await review.save();
+
+    res.json({
+      success: true,
+      likesCount: review.likes.length,
+      isLiked: !alreadyLiked,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const deleteMovieReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found" });
+    }
+
+    // Check ownership or admin status
+    const isOwner = review.user.toString() === req.user._id.toString();
+    if (!isOwner && !req.user.isAdmin) {
+      return res.status(403).json({ success: false, message: "Not authorized to delete this review" });
+    }
+
+    await review.deleteOne();
+    res.json({ success: true, message: "Review deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export {
   createMovie,
   getAllMovies,
@@ -771,4 +898,9 @@ export {
   getPersonDetailsController,
   getCollectionDetailsController,
   getTrailerController,
+  // MongoDB Reviews
+  getMovieReviews,
+  createMovieReview,
+  toggleLikeReview,
+  deleteMovieReview,
 };

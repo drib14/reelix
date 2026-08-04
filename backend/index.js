@@ -106,20 +106,28 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:3000",
+  "https://reelix-web.onrender.com",
   process.env.CLIENT_URL,
 ].filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // Allow non-browser calls (Postman, server-to-server, curl)
+  if (allowedOrigins.includes(origin)) return true;
+  if (origin.endsWith(".onrender.com") || origin.endsWith(".vercel.app")) return true;
+  return false;
+};
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, Postman, server-to-server)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
-      return callback(new Error("Not allowed by CORS"), false);
+      return callback(null, false);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 

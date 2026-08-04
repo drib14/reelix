@@ -35,6 +35,10 @@ import {
   getPersonDetailsController,
   getCollectionDetailsController,
   getTrailerController,
+  getMovieReviews,
+  createMovieReview,
+  toggleLikeReview,
+  deleteMovieReview,
 } from "../controllers/movieController.js";
 
 // Middlewares
@@ -57,6 +61,12 @@ router.get("/person/:id", getPersonDetailsController);
 router.get("/collection/:id", getCollectionDetailsController);
 
 router.get("/:id/trailer", cacheMiddleware(3600), getTrailerController);
+
+// MongoDB Community Reviews
+router.get("/:id/reviews", getMovieReviews);
+router.post("/:id/reviews", authenticate, createMovieReview);
+router.post("/:id/reviews/:reviewId/like", authenticate, toggleLikeReview);
+router.delete("/:id/reviews/:reviewId", authenticate, deleteMovieReview);
 
 router.get("/new-movies", getNewMovies);
 

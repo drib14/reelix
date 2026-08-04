@@ -629,16 +629,7 @@ const MovieDetails = () => {
       {/* ================= REVIEWS ================= */}
       <section className="bg-[#0d0d0e] pb-24 border-t border-zinc-800/80 pt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <MovieTabs
-            loadingMovieReview={loadingMovieReview}
-            userInfo={userInfo}
-            submitHandler={submitHandler}
-            rating={rating}
-            setRating={setRating}
-            comment={comment}
-            setComment={setComment}
-            movie={movie}
-          />
+          <MovieTabs movieId={movieId} userInfo={userInfo} />
         </div>
       </section>
 

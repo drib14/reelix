@@ -18,7 +18,8 @@ import {
 
 import { logout } from "../../redux/features/auth/authSlice";
 import { useLogoutMutation } from "../../redux/api/users";
-import { MINIMAL_AVATARS } from "../../utils/assets";
+import { useSearchMoviesQuery } from "../../redux/api/movies";
+import { MINIMAL_AVATARS, REELIX_FALLBACK_POSTER } from "../../utils/assets";
 
 import Logo from "../Logo";
 import MovieRouletteModal from "../MovieRouletteModal";
@@ -44,6 +45,13 @@ const Navbar = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   const [logoutApiCall] = useLogoutMutation();
+
+  const { data: searchResults = [] } = useSearchMoviesQuery(
+    { keyword, type: "all" },
+    { skip: !keyword || keyword.trim().length < 2 }
+  );
+
+  const showDropdown = keyword && keyword.trim().length >= 2 && Array.isArray(searchResults) && searchResults.length > 0;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -172,6 +180,46 @@ const Navbar = () => {
                 >
                   <FaTimes />
                 </button>
+              )}
+
+              {/* Instant Predictive Search Dropdown */}
+              {showDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-950/95 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-2xl animate-in fade-in duration-200">
+                  <div className="p-2 space-y-1 max-h-80 overflow-y-auto no-scrollbar">
+                    {searchResults.slice(0, 5).map((item) => {
+                      const itemPoster = item.poster_path
+                        ? `https://image.tmdb.org/t/p/w185${item.poster_path}`
+                        : item.poster || item.image || REELIX_FALLBACK_POSTER;
+                      const targetUrl = item.media_type === "tv" ? `/tv/${item.id || item._id}` : `/movies/${item.id || item._id}`;
+                      const year = item.release_date ? item.release_date.substring(0, 4) : item.first_air_date ? item.first_air_date.substring(0, 4) : "";
+
+                      return (
+                        <Link
+                          key={item.id || item._id}
+                          to={targetUrl}
+                          onClick={() => setKeyword("")}
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-zinc-900 transition text-left group"
+                        >
+                          <img
+                            src={itemPoster}
+                            alt={item.title || item.name}
+                            className="w-9 h-12 object-cover rounded-lg flex-shrink-0 bg-zinc-900 border border-zinc-800 shadow"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-xs font-bold text-white group-hover:text-red-500 truncate transition">
+                              {item.title || item.name}
+                            </h4>
+                            <p className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-0.5">
+                              <span className="uppercase font-semibold text-red-400">{item.media_type || "movie"}</span>
+                              {year && <span>• {year}</span>}
+                              {item.vote_average && <span className="text-amber-400 font-bold">★ {Number(item.vote_average).toFixed(1)}</span>}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </form>
           </div>

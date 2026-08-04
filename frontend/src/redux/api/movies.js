@@ -23,11 +23,29 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
+    getMovieReviews: builder.query({
+      query: (id) => `${MOVIE_URL}/${id}/reviews`,
+    }),
+
     addMovieReview: builder.mutation({
       query: ({ id, rating, comment }) => ({
         url: `${MOVIE_URL}/${id}/reviews`,
         method: "POST",
-        body: { rating, id, comment },
+        body: { rating, comment },
+      }),
+    }),
+
+    toggleLikeReview: builder.mutation({
+      query: ({ movieId, reviewId }) => ({
+        url: `${MOVIE_URL}/${movieId}/reviews/${reviewId}/like`,
+        method: "POST",
+      }),
+    }),
+
+    deleteReview: builder.mutation({
+      query: ({ movieId, reviewId }) => ({
+        url: `${MOVIE_URL}/${movieId}/reviews/${reviewId}`,
+        method: "DELETE",
       }),
     }),
 
@@ -205,7 +223,10 @@ export const {
   useGetAllMoviesQuery,
   useCreateMovieMutation,
   useUpdateMovieMutation,
+  useGetMovieReviewsQuery,
   useAddMovieReviewMutation,
+  useToggleLikeReviewMutation,
+  useDeleteReviewMutation,
   useDeleteCommentMutation,
   useGetSpecificMovieQuery,
   useGetTvDetailsQuery,

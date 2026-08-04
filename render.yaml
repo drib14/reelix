@@ -35,7 +35,7 @@ services:
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: CLIENT_URL
-        sync: false
+        value: https://reelix-web.onrender.com
 
   # ---------------------------------------------------
   # 2. Frontend Static Site (Vite React Web App)
