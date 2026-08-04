@@ -363,3 +363,27 @@ export const discoverMovies = async ({
 
   return (data.results || []).map((item) => formatTMDBMovie(item, isTv ? "tv" : "movie"));
 };
+
+// =======================
+// Fetch Trailer Video Key
+// =======================
+
+export const getMediaTrailer = async (id, type = "movie") => {
+  const isTv = type === "tv";
+  const cacheKey = `trailer-${type}-${id}`;
+  return fetchWithCache(cacheKey, async () => {
+    const tmdb = getTMDB();
+    const endpoint = isTv ? `/tv/${id}/videos` : `/movie/${id}/videos`;
+    try {
+      const { data } = await tmdb.get(endpoint);
+      const results = data.results || [];
+      const trailer =
+        results.find((v) => v.site === "YouTube" && v.type === "Trailer") ||
+        results.find((v) => v.site === "YouTube" && v.type === "Teaser") ||
+        results.find((v) => v.site === "YouTube");
+      return trailer ? { key: trailer.key, name: trailer.name, site: trailer.site } : null;
+    } catch (err) {
+      return null;
+    }
+  }, 60 * 60 * 1000);
+};

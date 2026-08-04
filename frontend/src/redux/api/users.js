@@ -39,6 +39,27 @@ export const userApiSlice = apiSlice.injectEndpoints({
         url: USERS_URL,
       }),
     }),
+
+    getWatchHistory: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/watch-history`,
+      }),
+    }),
+
+    updateWatchHistory: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/watch-history`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    deleteWatchHistoryItem: builder.mutation({
+      query: (mediaId) => ({
+        url: `${USERS_URL}/watch-history/${mediaId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -48,4 +69,7 @@ export const {
   useLogoutMutation,
   useProfileMutation,
   useGetUsersQuery,
+  useGetWatchHistoryQuery,
+  useUpdateWatchHistoryMutation,
+  useDeleteWatchHistoryItemMutation,
 } = userApiSlice;

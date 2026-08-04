@@ -6,6 +6,8 @@
   "main": "backend/index.js",
   "scripts": {
     "start": "node backend/index.js",
+    "start:cluster": "node backend/cluster.js",
+    "pm2:cluster": "pm2 start ecosystem.config.cjs",
     "dev": "nodemon backend/index.js",
     "fullstack": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "nodemon backend/index.js",

@@ -1,12 +1,25 @@
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FaTimes } from "react-icons/fa";
 
 const TrailerModal = ({ trailer, isOpen, onClose }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen || !trailer) return null;
 
   const videoId = trailer.split("v=")[1]?.split("&")[0];
 
-  return (
-    <div className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-6">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/90 z-[999999] flex items-center justify-center p-6">
       <div className="relative w-full max-w-6xl">
 
         <button
@@ -29,7 +42,8 @@ const TrailerModal = ({ trailer, isOpen, onClose }) => {
 
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

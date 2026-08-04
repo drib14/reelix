@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -34,6 +34,8 @@ import {
 const MovieDetails = () => {
   const { id: movieId } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const isTvType = searchParams.get("type") === "tv";
 
   const [rating, setRating] = useState(0);
@@ -206,6 +208,12 @@ const MovieDetails = () => {
   const defaultVideoStream = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
 
   const playEpisodeHandler = (seasonNum, epNum) => {
+    if (!userInfo) {
+      toast.info("Please sign in to stream movies and series on Reelix.");
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+      return;
+    }
+
     setSelectedSeason(seasonNum);
     setSelectedEpisode(epNum);
     setPlayerConfig({

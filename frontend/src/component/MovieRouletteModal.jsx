@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   FaDice,
   FaTimes,
@@ -103,6 +104,17 @@ const MovieRouletteModal = ({ isOpen, onClose }) => {
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [wheelRotation, setWheelRotation] = useState(0);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   // Build candidate pool from API responses or static fallback array
@@ -139,8 +151,14 @@ const MovieRouletteModal = ({ isOpen, onClose }) => {
     const slotObj = ROULETTE_GENRES[winningSlotIdx];
     const targetGenreId = slotObj.id === "all" || slotObj.id === "all-top" ? selectedGenre : slotObj.id;
 
+    const getRating = (m) => {
+      if (m.vote_average !== undefined && m.vote_average !== null) return Number(m.vote_average);
+      if (m.rating !== undefined && m.rating !== null) return Number(m.rating);
+      return 7.0;
+    };
+
     let candidates = fullMoviesPool.filter((m) => {
-      const rating = m.vote_average || m.rating || 7.5;
+      const rating = getRating(m);
       const ratingOk = rating >= minRating;
       const genreOk =
         targetGenreId === "all" ||
@@ -150,11 +168,24 @@ const MovieRouletteModal = ({ isOpen, onClose }) => {
       return ratingOk && genreOk;
     });
 
-    if (candidates.length === 0) candidates = fullMoviesPool;
+    if (candidates.length === 0) {
+      // Preserve minRating filter even if genre has no items in local pool
+      candidates = fullMoviesPool.filter((m) => getRating(m) >= minRating);
+      if (candidates.length === 0) {
+        candidates = [...fullMoviesPool].sort((a, b) => getRating(b) - getRating(a));
+      }
+    }
 
     // 4. Truly random selection from candidates pool
     const randomIndex = Math.floor(Math.random() * candidates.length);
-    const pickedMovie = candidates[randomIndex] || fullMoviesPool[0] || FALLBACK_MOVIES[0];
+    const rawPicked = candidates[randomIndex] || fullMoviesPool[0] || FALLBACK_MOVIES[0];
+
+    // Guarantee output rating reflects the verified rating
+    const pickedMovie = {
+      ...rawPicked,
+      vote_average: Math.max(minRating, getRating(rawPicked)),
+      rating: Math.max(minRating, getRating(rawPicked)),
+    };
 
     // 5. Open result modal precisely when the 3.2s wheel deceleration completes
     setTimeout(() => {
@@ -164,9 +195,9 @@ const MovieRouletteModal = ({ isOpen, onClose }) => {
     }, 3200);
   };
 
-  return (
+  return createPortal(
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overscroll-contain animate-hero-entry">
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overscroll-contain animate-hero-entry">
         {/* Perfectly sized & rigidly pinned responsive container */}
         <div className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-3xl p-5 sm:p-7 shadow-2xl overflow-hidden max-h-[88vh] flex flex-col my-auto overscroll-contain">
           {/* Background Ambient Glows */}
@@ -314,7 +345,8 @@ const MovieRouletteModal = ({ isOpen, onClose }) => {
         onClose={() => setIsResultOpen(false)}
         onSpinAgain={handleSpin}
       />
-    </>
+    </>,
+    document.body
   );
 };
 

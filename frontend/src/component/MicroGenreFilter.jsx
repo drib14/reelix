@@ -40,7 +40,7 @@ const MicroGenreFilter = ({ selectedTag, onSelectTag }) => {
       </div>
 
       <div
-        className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth"
+        className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth touch-pan-x flex-nowrap"
         style={{ perspective: "600px" }}
       >
         {MICRO_GENRES.map((tag) => {

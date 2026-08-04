@@ -3,14 +3,9 @@
   "name": "Reelix — Free 1080p Ultra HD Movies & TV Series",
   "icons": [
     {
-      "src": "/avatars/cyberpunk_hero.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "/avatars/cyberpunk_hero.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
     }
   ],
   "start_url": "/",

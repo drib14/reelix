@@ -7,6 +7,9 @@ import {
   getAllUsers,
   getCurrentUserProfile,
   updateCurrentUserProfile,
+  getWatchHistory,
+  updateWatchHistory,
+  deleteWatchHistoryItem,
 } from "../controllers/userController.js";
 
 // middlewares
@@ -26,5 +29,14 @@ router
   .route("/profile")
   .get(authenticate, getCurrentUserProfile)
   .put(authenticate, updateCurrentUserProfile);
+
+router
+  .route("/watch-history")
+  .get(authenticate, getWatchHistory)
+  .post(authenticate, updateWatchHistory);
+
+router
+  .route("/watch-history/:mediaId")
+  .delete(authenticate, deleteWatchHistoryItem);
 
 export default router;

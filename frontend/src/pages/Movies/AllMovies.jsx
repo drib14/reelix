@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import Navbar from "../../component/Landing/Navbar";
 import HeroBanner from "../../component/Landing/HeroBanner";
@@ -15,18 +16,61 @@ import {
 } from "../../redux/api/movies";
 
 const AllMovies = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Helper to read filter values from URL searchParams first, then sessionStorage, then fallback
+  const getInitialValue = (key, fallback) => {
+    const fromUrl = searchParams.get(key);
+    if (fromUrl !== null && fromUrl !== undefined) return fromUrl;
+
+    try {
+      const saved = sessionStorage.getItem("reelix_explore_filters");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed[key] !== undefined && parsed[key] !== null) return String(parsed[key]);
+      }
+    } catch (e) {
+      console.warn("Failed reading saved filters", e);
+    }
+    return fallback;
+  };
+
   // ==========================
-  // Filter States
+  // Filter States (Persisted)
   // ==========================
 
-  const [mediaType, setMediaType] = useState("movie"); // "movie" | "tv"
-  const [genre, setGenre] = useState("");
-  const [platform, setPlatform] = useState("");
-  const [country, setCountry] = useState("US"); // Default region: US 🇺🇸
-  const [year, setYear] = useState("");
-  const [rating, setRating] = useState("");
-  const [sort, setSort] = useState("popularity");
-  const [page, setPage] = useState(1);
+  const [mediaType, setMediaType] = useState(() => getInitialValue("type", "movie"));
+  const [genre, setGenre] = useState(() => getInitialValue("genre", ""));
+  const [platform, setPlatform] = useState(() => getInitialValue("platform", ""));
+  const [country, setCountry] = useState(() => getInitialValue("country", "US"));
+  const [year, setYear] = useState(() => getInitialValue("year", ""));
+  const [rating, setRating] = useState(() => getInitialValue("rating", ""));
+  const [sort, setSort] = useState(() => getInitialValue("sort", "popularity"));
+  const [page, setPage] = useState(() => Number(getInitialValue("page", 1)));
+
+  // Sync state changes into URL search parameters & sessionStorage
+  useEffect(() => {
+    const params = {};
+    if (mediaType && mediaType !== "movie") params.type = mediaType;
+    if (genre) params.genre = String(genre);
+    if (platform) params.platform = String(platform);
+    if (country && country !== "US") params.country = country;
+    if (year) params.year = String(year);
+    if (rating) params.rating = String(rating);
+    if (sort && sort !== "popularity") params.sort = sort;
+    if (page && page > 1) params.page = String(page);
+
+    setSearchParams(params, { replace: true });
+
+    try {
+      sessionStorage.setItem(
+        "reelix_explore_filters",
+        JSON.stringify({ type: mediaType, genre, platform, country, year, rating, sort, page })
+      );
+    } catch (e) {
+      console.warn(e);
+    }
+  }, [mediaType, genre, platform, country, year, rating, sort, page, setSearchParams]);
 
   // ==========================
   // Fetch Genres
@@ -57,6 +101,7 @@ const AllMovies = () => {
   });
 
   const resetFilters = () => {
+    setMediaType("movie");
     setGenre("");
     setPlatform("");
     setCountry("US");
@@ -64,6 +109,10 @@ const AllMovies = () => {
     setRating("");
     setSort("popularity");
     setPage(1);
+    setSearchParams({}, { replace: true });
+    try {
+      sessionStorage.removeItem("reelix_explore_filters");
+    } catch (e) {}
   };
 
   return (

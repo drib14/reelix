@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import {
   FaFilm,
@@ -84,6 +85,17 @@ const FranchiseMarathonModal = ({ isOpen, onClose }) => {
     localStorage.setItem("reelix_marathon_watched", JSON.stringify(watchedState));
   }, [watchedState]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const toggleWatch = (movieId) => {
@@ -102,8 +114,8 @@ const FranchiseMarathonModal = ({ isOpen, onClose }) => {
   const watchedCount = selectedFranchise.movies.filter((m) => watchedState[m.id]).length;
   const progressPct = Math.round((watchedCount / selectedFranchise.movies.length) * 100);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overscroll-contain animate-hero-entry">
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overscroll-contain animate-hero-entry">
       <div className="relative w-full max-w-3xl bg-zinc-900 border border-zinc-800 rounded-3xl p-5 sm:p-7 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col my-auto overscroll-contain">
         {/* Glow background effects */}
         <div className="absolute -top-16 -left-16 w-48 h-48 bg-red-600/10 rounded-full blur-[60px] pointer-events-none" />
@@ -266,7 +278,8 @@ const FranchiseMarathonModal = ({ isOpen, onClose }) => {
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -34,6 +34,7 @@ import {
   getTrendingAllController,
   getPersonDetailsController,
   getCollectionDetailsController,
+  getTrailerController,
 } from "../controllers/movieController.js";
 
 // Middlewares
@@ -54,6 +55,8 @@ router.get("/tv/:id/season/:seasonNumber", getTvSeasonDetailsController);
 router.get("/person/:id", getPersonDetailsController);
 
 router.get("/collection/:id", getCollectionDetailsController);
+
+router.get("/:id/trailer", cacheMiddleware(3600), getTrailerController);
 
 router.get("/new-movies", getNewMovies);
 

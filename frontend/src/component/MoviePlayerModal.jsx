@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   FaTimes,
   FaFilm,
@@ -423,6 +424,17 @@ const MoviePlayerModal = ({
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const togglePlay = () => {
@@ -531,8 +543,8 @@ const MoviePlayerModal = ({
     return `${minutes < 10 ? "0" : ""}${minutes}:${remainingSecs < 10 ? "0" : ""}${remainingSecs}`;
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[9999] flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[999999] flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
       <div
         ref={containerRef}
         onMouseMove={handleMouseMove}
@@ -1032,7 +1044,8 @@ const MoviePlayerModal = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

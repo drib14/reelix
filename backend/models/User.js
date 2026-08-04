@@ -23,6 +23,21 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+
+    watchHistory: [
+      {
+        mediaId: { type: String, required: true },
+        mediaType: { type: String, enum: ["movie", "tv"], default: "movie" },
+        title: { type: String },
+        posterPath: { type: String },
+        backdropPath: { type: String },
+        season: { type: Number, default: 1 },
+        episode: { type: Number, default: 1 },
+        progressSeconds: { type: Number, default: 0 },
+        totalDurationSeconds: { type: Number, default: 0 },
+        lastWatchedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );

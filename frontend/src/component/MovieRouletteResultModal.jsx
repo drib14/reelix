@@ -1,10 +1,26 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { FaTimes, FaStar, FaPlay, FaRedo, FaTrophy, FaCalendarAlt } from "react-icons/fa";
 import { REELIX_FALLBACK_POSTER } from "../utils/assets";
 import Tilt3DCard from "./Tilt3DCard";
 
 const MovieRouletteResultModal = ({ isOpen, movie, onClose, onSpinAgain }) => {
+  const navigate = useNavigate();
+  const { userInfo } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen || !movie) return null;
 
   const posterSrc = movie.poster_path
@@ -14,8 +30,8 @@ const MovieRouletteResultModal = ({ isOpen, movie, onClose, onSpinAgain }) => {
   const rating = movie.vote_average || movie.rating;
   const releaseYear = movie.release_date ? movie.release_date.substring(0, 4) : movie.year || "";
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-2xl overscroll-contain animate-hero-entry">
+  return createPortal(
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-2xl overscroll-contain animate-hero-entry">
       <div className="relative w-full max-w-md bg-zinc-900 border border-red-600/40 rounded-3xl p-6 shadow-2xl overflow-hidden my-auto overscroll-contain">
         {/* Glow ambient background */}
         <div className="absolute -top-20 -left-20 w-56 h-56 bg-red-600/20 rounded-full blur-[80px] pointer-events-none" />
@@ -75,14 +91,22 @@ const MovieRouletteResultModal = ({ isOpen, movie, onClose, onSpinAgain }) => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
-          <Link
-            to={`/movies/${movie.id || movie._id}`}
-            onClick={onClose}
+          <button
+            onClick={() => {
+              onClose();
+              const targetUrl = `/movies/${movie.id || movie._id}`;
+              if (!userInfo) {
+                toast.info("Please sign in to stream movies and series on Reelix.");
+                navigate(`/login?redirect=${encodeURIComponent(targetUrl)}`);
+                return;
+              }
+              navigate(targetUrl);
+            }}
             className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-extrabold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-red-600/30 transition transform hover:scale-105"
           >
             <FaPlay className="text-[10px]" />
             <span>Watch Movie</span>
-          </Link>
+          </button>
 
           <button
             onClick={() => {
@@ -96,7 +120,8 @@ const MovieRouletteResultModal = ({ isOpen, movie, onClose, onSpinAgain }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

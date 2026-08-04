@@ -22,6 +22,7 @@ import {
   getTrendingAll,
   getPersonDetails,
   getCollectionDetails,
+  getMediaTrailer,
 } from "../utils/tmdbService.js";
 
 const createMovie = async (req, res) => {
@@ -725,6 +726,17 @@ const getCollectionDetailsController = async (req, res) => {
   }
 };
 
+const getTrailerController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const type = req.query.type || "movie";
+    const trailer = await getMediaTrailer(id, type);
+    res.json(trailer || { key: null });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export {
   createMovie,
   getAllMovies,
@@ -758,4 +770,5 @@ export {
   getTrendingAllController,
   getPersonDetailsController,
   getCollectionDetailsController,
+  getTrailerController,
 };

@@ -58,3 +58,22 @@ export const clearAISession = () => {
   localStorage.removeItem("reelix-ai-session");
   localStorage.removeItem("reelix-ai-chat");
 };
+
+export const getVibeRecommendations = async ({ mood, energy, tone, prompt }) => {
+  try {
+    const url = `${BASE_URL}/api/v1/ai/vibe`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mood, energy, tone, prompt }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch vibe recommendations.");
+    }
+    return data;
+  } catch (error) {
+    console.error("Vibe API error:", error);
+    throw error;
+  }
+};

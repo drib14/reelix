@@ -178,3 +178,48 @@ export const askMovieAI = async (sessionId, message) => {
     throw new Error("Failed to get AI response.");
   }
 };
+
+export const getVibeAI = async ({ mood, energy, tone, prompt }) => {
+  try {
+    const userPrompt = `Synthesize a movie & TV show recommendation list based on this vibe setup:
+- Mood/Vibe: ${mood || "Exciting & Immersive"}
+- Energy Level (1-10): ${energy || 5}
+- Tone Spectrum: ${tone || "Balanced"}
+- Extra User Context: "${prompt || "Give me something memorable with great visuals"}"
+
+Return ONLY a JSON object:
+{
+  "type": "recommendation",
+  "vibeTitle": "Short Catchy Vibe Name",
+  "vibeSummary": "1-2 sentence description of why these titles fit this mood.",
+  "movies": [
+    { "title": "Movie or Show Title", "year": 2023, "media_type": "movie", "reason": "Specific micro-reason why it fits" }
+  ]
+}
+Recommend 5 to 7 highly rated titles (mix of movies and TV shows/anime). Set media_type to "movie" or "tv".`;
+
+    const client = getClient();
+    const completion = await client.chat.completions.create({
+      model: process.env.GROQ_MODEL,
+      response_format: { type: "json_object" },
+      temperature: 0.8,
+      max_tokens: 1200,
+      messages: [
+        {
+          role: "system",
+          content: "You are Reelix AI Vibe Curator. Always respond in strict JSON format.",
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+    });
+
+    const aiResponse = completion.choices[0].message.content;
+    return JSON.parse(aiResponse);
+  } catch (error) {
+    console.error("Vibe AI Error:", error);
+    throw new Error("Failed to curate vibe recommendations.");
+  }
+};

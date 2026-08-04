@@ -23,7 +23,9 @@ import { MINIMAL_AVATARS } from "../../utils/assets";
 import Logo from "../Logo";
 import MovieRouletteModal from "../MovieRouletteModal";
 import FranchiseMarathonModal from "../FranchiseMarathonModal";
-import { FaDice, FaLayerGroup } from "react-icons/fa";
+import VibeFinderModal from "../Vibe/VibeFinderModal";
+import MobileBottomNav from "./MobileBottomNav";
+import { FaDice, FaLayerGroup, FaWandMagicSparkles } from "react-icons/fa6";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -36,6 +38,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [rouletteOpen, setRouletteOpen] = useState(false);
   const [marathonOpen, setMarathonOpen] = useState(false);
+  const [vibeOpen, setVibeOpen] = useState(false);
 
   const watchlist = useSelector((state) => state.watchlist.movies);
   const { userInfo } = useSelector((state) => state.auth);
@@ -112,6 +115,13 @@ const Navbar = () => {
                 <FaCompass className="text-xs" />
                 <span>Explore Movies</span>
               </Link>
+              <button
+                onClick={() => setVibeOpen(true)}
+                className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 hover:from-amber-500 hover:to-orange-500 hover:text-slate-950 px-3 py-1.5 rounded-full border border-amber-500/40 transition-all font-bold shadow-lg shadow-amber-500/10"
+              >
+                <FaWandMagicSparkles className="text-xs text-amber-400" />
+                <span>AI Vibe Curator 🪄</span>
+              </button>
               <button
                 onClick={() => setRouletteOpen(true)}
                 className="flex items-center gap-1.5 text-xs bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-full border border-red-500/30 transition-all font-semibold"
@@ -286,9 +296,39 @@ const Navbar = () => {
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-3 rounded-xl bg-zinc-900/60 text-white font-medium hover:bg-zinc-800 flex items-center gap-3"
               >
-                <FaFilm className="text-gray-400" />
+                <FaCompass className="text-gray-400" />
                 <span>Explore Movies</span>
               </Link>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setVibeOpen(true);
+                }}
+                className="w-full text-left px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 font-bold border border-amber-500/40 flex items-center gap-3"
+              >
+                <FaWandMagicSparkles className="text-amber-400" />
+                <span>AI Vibe Curator 🪄</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setRouletteOpen(true);
+                }}
+                className="w-full text-left px-4 py-3 rounded-xl bg-red-600/20 text-red-400 font-semibold border border-red-500/30 flex items-center gap-3"
+              >
+                <FaDice className="text-red-400" />
+                <span>Movie Roulette 🎲</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setMarathonOpen(true);
+                }}
+                className="w-full text-left px-4 py-3 rounded-xl bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30 flex items-center gap-3"
+              >
+                <FaLayerGroup className="text-amber-400" />
+                <span>Marathon Guides 🍿</span>
+              </button>
               <Link
                 to="/watchlist"
                 onClick={() => setMenuOpen(false)}
@@ -349,6 +389,8 @@ const Navbar = () => {
 
       <MovieRouletteModal isOpen={rouletteOpen} onClose={() => setRouletteOpen(false)} />
       <FranchiseMarathonModal isOpen={marathonOpen} onClose={() => setMarathonOpen(false)} />
+      <VibeFinderModal isOpen={vibeOpen} onClose={() => setVibeOpen(false)} />
+      <MobileBottomNav setVibeOpen={setVibeOpen} setRouletteOpen={setRouletteOpen} />
     </header>
   );
 };

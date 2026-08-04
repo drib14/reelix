@@ -13,7 +13,7 @@ services:
     plan: free
     region: singapore
     buildCommand: npm install --include=dev --no-audit --no-fund && cd frontend && npm install --include=dev --no-audit --no-fund && npm run build
-    startCommand: node backend/index.js
+    startCommand: node backend/cluster.js
     healthCheckPath: /health
     envVars:
       - key: PORT

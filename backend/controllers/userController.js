@@ -64,18 +64,17 @@ const loginUser = asyncHandler(async (req, res) => {
     if (isPasswordValid) {
       createToken(res, existingUser._id);
 
-      res.status(201).json({
+      return res.status(200).json({
         _id: existingUser._id,
         username: existingUser.username,
         email: existingUser.email,
         isAdmin: existingUser.isAdmin,
       });
-    } else {
-      res.status(401).json({ message: "Invalid Password" });
     }
-  } else {
-    res.status(401).json({ message: "User not found" });
   }
+
+  // Generic 401 response to prevent user enumeration attacks
+  res.status(401).json({ message: "Invalid email or password" });
 });
 
 const logoutCurrentUser = asyncHandler(async (req, res) => {
@@ -134,6 +133,104 @@ const updateCurrentUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// Watch History Controllers
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  const sortedHistory = (user.watchHistory || []).sort(
+    (a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt)
+  );
+
+  res.status(200).json(sortedHistory);
+});
+
+const updateWatchHistory = asyncHandler(async (req, res) => {
+  const {
+    mediaId,
+    mediaType = "movie",
+    title,
+    posterPath,
+    backdropPath,
+    season = 1,
+    episode = 1,
+    progressSeconds = 0,
+    totalDurationSeconds = 0,
+  } = req.body;
+
+  if (!mediaId) {
+    res.status(400);
+    throw new Error("mediaId is required");
+  }
+
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (!user.watchHistory) {
+    user.watchHistory = [];
+  }
+
+  const existingIndex = user.watchHistory.findIndex(
+    (item) => item.mediaId === String(mediaId)
+  );
+
+  if (existingIndex > -1) {
+    user.watchHistory[existingIndex].mediaType = mediaType;
+    if (title) user.watchHistory[existingIndex].title = title;
+    if (posterPath) user.watchHistory[existingIndex].posterPath = posterPath;
+    if (backdropPath) user.watchHistory[existingIndex].backdropPath = backdropPath;
+    user.watchHistory[existingIndex].season = Number(season);
+    user.watchHistory[existingIndex].episode = Number(episode);
+    user.watchHistory[existingIndex].progressSeconds = Number(progressSeconds);
+    user.watchHistory[existingIndex].totalDurationSeconds = Number(totalDurationSeconds);
+    user.watchHistory[existingIndex].lastWatchedAt = new Date();
+  } else {
+    user.watchHistory.push({
+      mediaId: String(mediaId),
+      mediaType,
+      title,
+      posterPath,
+      backdropPath,
+      season: Number(season),
+      episode: Number(episode),
+      progressSeconds: Number(progressSeconds),
+      totalDurationSeconds: Number(totalDurationSeconds),
+      lastWatchedAt: new Date(),
+    });
+  }
+
+  await user.save();
+
+  const sortedHistory = user.watchHistory.sort(
+    (a, b) => new Date(b.lastWatchedAt) - new Date(a.lastWatchedAt)
+  );
+
+  res.status(200).json(sortedHistory);
+});
+
+const deleteWatchHistoryItem = asyncHandler(async (req, res) => {
+  const { mediaId } = req.params;
+
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  user.watchHistory = (user.watchHistory || []).filter(
+    (item) => item.mediaId !== String(mediaId)
+  );
+
+  await user.save();
+  res.status(200).json({ message: "Watch history item removed", watchHistory: user.watchHistory });
+});
+
 export {
   createUser,
   loginUser,
@@ -141,4 +238,7 @@ export {
   getAllUsers,
   getCurrentUserProfile,
   updateCurrentUserProfile,
+  getWatchHistory,
+  updateWatchHistory,
+  deleteWatchHistoryItem,
 };
